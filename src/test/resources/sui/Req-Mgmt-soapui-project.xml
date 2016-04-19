@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project activeEnvironment="Default" name="Req Mgmt Example" resourceRoot="${projectDir}" soapui-version="4.6.3" abortOnError="false" runType="SEQUENTIAL" id="ddbe357a-af22-49ef-a988-934b161f9e24" xmlns:con="http://eviware.com/soapui/config"><con:description>This Testproject is used for testing the XTF-SEL Report Generation functionality.</con:description><con:settings/><con:testSuite name="TestSetup" id="2508f6bb-bad7-4f75-869d-32e78b620972"><con:description>Load the requirements</con:description><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Requirements" searchProperties="true" id="68371719-6418-466f-9781-0ed9bb94bd60"><con:settings/><con:testStep type="groovy" name="LoadRequirements" id="805be263-ab50-40c0-8de4-cadeb06d7ca4" disabled="true"><con:settings/><con:config><script>// Load Requierments properties
+
+def projectroot = context.expand('${projectDir}')
+
+File file = new File(projectroot+"\\Requirements.txt")
+
+def testCase = testRunner.testCase
+
+// Delete all properties
+testCase.propertyNames.each { name ->
+	testCase.removeProperty name
+}
+
+// Load properties from file
+testCase.addPropertiesFromFile(file.path)</script></con:config></con:testStep><con:properties><con:property><con:name>TR-V1__Reference</con:name></con:property><con:property><con:name>ii.req.JH.1__Name</con:name></con:property><con:property><con:name>TR-V2__Reference</con:name></con:property><con:property><con:name>TR-V1__Name</con:name></con:property><con:property><con:name>ii.req.JH.1__Description</con:name></con:property><con:property><con:name>TR-V2__Description</con:name></con:property><con:property><con:name>TR-V2##R.1__shortDescription</con:name></con:property><con:property><con:name>ii.req.JH.2__Description</con:name></con:property><con:property><con:name>TR-V1##R.2__shortDescription</con:name></con:property><con:property><con:name>TR-V2##R.2__Name</con:name></con:property><con:property><con:name>ii.req.JH.2__Name</con:name></con:property><con:property><con:name>TR-V1##R.2__Description</con:name></con:property><con:property><con:name>TR-V2__Name</con:name></con:property><con:property><con:name>TR-V1##R.1__shortDescription</con:name></con:property><con:property><con:name>TR-V1##R.2__Name</con:name></con:property><con:property><con:name>TR-V2##R.2__Description</con:name></con:property><con:property><con:name>TR-V1##R.1__Name</con:name></con:property><con:property><con:name>TR-V1__Description</con:name></con:property><con:property><con:name>TR-V2##R.1__Name</con:name></con:property><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-02-10T14:00:12.182+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-02-10T14:00:12.184+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value/></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property></con:properties></con:testCase><con:properties/></con:testSuite><con:testSuite name="Example TestSuite 1" id="44474dec-0f80-4978-9d2f-c2897f98c59c"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Always failing TestCase" searchProperties="true" id="b8fbb647-687a-493b-ada4-b1a4430df3f8"><con:description>The test case contains a test step with an assertion which will always fail</con:description><con:settings/><con:testStep name="Copy of GetCapabilities" type="httprequest" id="5a94dea7-1426-406f-a281-086977dec28f">
+        <con:settings/>
+        <con:config method="GET" name="Copy of GetCapabilities" timeout="0" xsi:type="con:HttpRequest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:description>This test step contains an assertion which will always fail</con:description><con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="Authorization" value="Basic Og==" xmlns="http://eviware.com/soapui/config"/></con:setting>
+          </con:settings>
+          <con:encoding>UTF-8</con:encoding>
+          <con:endpoint>http://kreios.interactive-instruments.de/aaa-suite/cgi-bin/alkis/sf/wfs</con:endpoint>
+          <con:request/>
+          <con:assertion type="Simple Schema Validator" name="TR-V1##R.1: An assertion without associated super requirement" id="7239a318-4ac5-45a1-b5e8-d2fdcc4e972b"><con:configuration><pathToXSD>xsi:schemaLocation</pathToXSD></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Script Assertion" id="bb92c7af-dd4d-4ac9-920a-1371176564b2"><con:configuration><scriptText>return 1;</scriptText></con:configuration></con:assertion><con:assertion type="XPath Match" name="An assertion that will always fail" id="bb9a160e-831f-4e68-8c05-000eba99b14e"><con:configuration><path>/*:Capabilitiiiiiiiies</path><content>false</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" name="Deactivated assertion" disabled="true" id="10197657-2411-4077-a8ef-e5207739ab75"><con:configuration><scriptText/></con:configuration></con:assertion><con:assertion type="XQuery Match" name="TR-V1##R.1: FOO Assertion" id="ef0df450-e3f0-42a3-8abc-9e268eca6536"><con:configuration><path>declare namespace gml='http://www.opengis.net/gml/3.2'; 
+declare namespace xsi='http://www.w3.org/2001/XMLSchema-instance'; 
+declare namespace adv='http://www.adv-online.de/namespaces/adv/gid/6.0';
+declare namespace xlink='http://www.w3.org/1999/xlink';
+&lt;result>AssertionFailures:
+{
+	for $lbz in //*:ServiceTypeVersion
+	let $obj := $lbz/../..
+	let $beg := matches($lbz/adv:beginnt,'^20[0-9]{2}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]Z')
+	let $end := count($lbz/adv:endet)=0 or matches($lbz/adv:endet,'^20[0-9]{2}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]Z')
+	where $beg eq false() or $end eq false()
+	return 
+	if ($beg eq false()) then concat('Beginn des Lebenzeitintervalls ',data($lbz/adv:beginnt),' in Objekt mit Identifikator ',data($obj/@gml:id),' entspricht nicht den Vorgaben.') 
+	else ''
+}
+&lt;/result></path><content>&lt;result>AssertionFailures:&lt;/result></content><allowWildcards>false</allowWildcards></con:configuration></con:assertion><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters>
+            
+            
+            <con:parameter>
+              <con:name>request</con:name>
+              <con:value>GetCapabilities</con:value>
+              <con:style>QUERY</con:style>
+              <con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type>
+              <con:default>GetCapabilities</con:default>
+              <con:description xsi:nil="true"/>
+            </con:parameter>
+          <con:parameter><con:name>version</con:name><con:value>${#TestSuite#version}</con:value><con:style>QUERY</con:style></con:parameter><con:parameter><con:name>service</con:name><con:value>${#TestSuite#service}</con:value><con:style>QUERY</con:style></con:parameter></con:parameters>
+        </con:config>
+      </con:testStep><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-02-08T17:49:37.481+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-02-08T17:49:37.481+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value>TR-V1</con:value></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Unreachable Endpoint with never failing assertions" searchProperties="true" id="d9b4e65b-a072-42ff-8995-3a08065ad96d"><con:description>In this TestCase an unreachable endpoint is used, but the Assertions will not fail.</con:description><con:settings/><con:testStep type="httprequest" name="Unreachable Endpoint" id="a4aa62dc-2e3f-441d-8497-b70eb56f4b9e"><con:settings/><con:config method="GET" xsi:type="con:HttpRequest" name="Unreachable Endpoint" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:endpoint>http://unreachable.endpoint.fooBar</con:endpoint><con:request/><con:assertion type="GroovyScriptAssertion" name="Never failing assertion" id="32f70a0c-1abc-4f17-b1d4-f39b51fb36a0"><con:configuration><scriptText>return true;</scriptText></con:configuration></con:assertion><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:config></con:testStep><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value>Test case should fail and a the error message will appear in the report</con:value></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-02-08T18:29:32.624+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-02-08T18:29:32.626+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value>ii.req.JH.1</con:value></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Uncompilable Groovy Script" searchProperties="true" id="cbad9b0a-c322-425c-accf-163922bcf0de"><con:settings/><con:testStep type="groovy" name="Groovy Script" id="0fbbc992-d8df-444c-85e7-13ca833c8e2f"><con:settings/><con:config><script>THIS (WHICH IS A KEYWORD..) SCRIPT SHOULD NOT COMPILE.... +-}j.((--{</script></con:config></con:testStep><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value>Test case should fail and a the error message will appear in the report</con:value></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-02-08T18:39:58.100+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-02-08T18:39:58.102+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value>ii.req.JH.2</con:value></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property></con:properties></con:testCase><con:properties/></con:testSuite><con:testSuite name="Example TestSuite 2" id="0e6eb931-4359-4c76-a540-77f80e962dc6"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 1 - one simple test step" searchProperties="true" id="878030bc-0afb-467d-8826-b0ad381c2ac6"><con:description>Simple Request with associated requirements through properties.</con:description><con:settings/><con:testStep name="GetCapabilities" type="httprequest" id="346b93b8-8799-4fbf-965a-f07e08547d65">
+        <con:settings/>
+        <con:config method="GET" name="GetCapabilities" timeout="0" xsi:type="con:HttpRequest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="Authorization" value="Basic Og==" xmlns="http://eviware.com/soapui/config"/></con:setting>
+          </con:settings>
+          <con:encoding>UTF-8</con:encoding>
+          <con:endpoint>http://kreios.interactive-instruments.de/aaa-suite/cgi-bin/alkis/sf/wfs</con:endpoint>
+          <con:request/>
+          <con:assertion type="Simple Schema Validator" name="TR-V1##R.1: Schema valid response" id="7239a318-4ac5-45a1-b5e8-d2fdcc4e972b"><con:configuration><pathToXSD>xsi:schemaLocation</pathToXSD></con:configuration></con:assertion><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters>
+            
+            
+            <con:parameter>
+              <con:name>request</con:name>
+              <con:value>GetCapabilities</con:value>
+              <con:style>QUERY</con:style>
+              <con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type>
+              <con:default>GetCapabilities</con:default>
+              <con:description xsi:nil="true"/>
+            </con:parameter>
+          <con:parameter><con:name>version</con:name><con:value>${#TestSuite#version}</con:value><con:style>QUERY</con:style></con:parameter><con:parameter><con:name>service</con:name><con:value>${#TestSuite#service}</con:value><con:style>QUERY</con:style></con:parameter></con:parameters>
+        </con:config>
+      </con:testStep><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-01-13T12:24:46.784+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value>TR-V1</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-01-13T14:10:45.486+01:00</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 2 - multiple test steps" searchProperties="true" id="bd11f351-ab05-43e6-ba68-0dc869884113"><con:description>Test case with multiple teststeps and requirements</con:description><con:settings/><con:testStep name="GetCapabilities 1" type="httprequest" id="b549fe8a-cd07-4b72-bf0a-6aa2e74dbc2e">
+        <con:settings/>
+        <con:config method="GET" name="GetCapabilities 1" timeout="0" xsi:type="con:HttpRequest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="Authorization" value="Basic Og==" xmlns="http://eviware.com/soapui/config"/></con:setting>
+          </con:settings>
+          <con:encoding>UTF-8</con:encoding>
+          <con:endpoint>http://kreios.interactive-instruments.de/aaa-suite/cgi-bin/alkis/sf/wfs</con:endpoint>
+          <con:request/>
+          <con:assertion type="Simple Schema Validator" name="TR-V1##R.1: Schema valid response" id="7239a318-4ac5-45a1-b5e8-d2fdcc4e972b"><con:configuration><pathToXSD>xsi:schemaLocation</pathToXSD></con:configuration></con:assertion><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters>
+            
+            
+            <con:parameter>
+              <con:name>request</con:name>
+              <con:value>GetCapabilities</con:value>
+              <con:style>QUERY</con:style>
+              <con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type>
+              <con:default>GetCapabilities</con:default>
+              <con:description xsi:nil="true"/>
+            </con:parameter>
+          <con:parameter><con:name>version</con:name><con:value>${#TestSuite#version}</con:value><con:style>QUERY</con:style></con:parameter><con:parameter><con:name>service</con:name><con:value>${#TestSuite#service}</con:value><con:style>QUERY</con:style></con:parameter></con:parameters>
+        </con:config>
+      </con:testStep><con:testStep name="GetCapabilities 2" type="httprequest" id="bead9295-d12e-4118-a1c7-f63839223509">
+        <con:settings/>
+        <con:config method="GET" name="GetCapabilities 2" timeout="0" xsi:type="con:HttpRequest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="Authorization" value="Basic Og==" xmlns="http://eviware.com/soapui/config"/></con:setting>
+          </con:settings>
+          <con:encoding>UTF-8</con:encoding>
+          <con:endpoint>http://kreios.interactive-instruments.de/aaa-suite/cgi-bin/alkis/sf/wfs</con:endpoint>
+          <con:request/>
+          <con:assertion type="Simple Schema Validator" name="TR-V1##R.1: Schema valid response" id="7239a318-4ac5-45a1-b5e8-d2fdcc4e972b"><con:configuration><pathToXSD>xsi:schemaLocation</pathToXSD></con:configuration></con:assertion><con:assertion type="XPath Match" name="TR-V2##R.2: WFS_Capabilties is the root element" id="2a85c055-0862-4877-b26c-843cafaabec4"><con:configuration><path>exists(/*:WFS_Capabilities)</path><content>true</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters>
+            
+            
+            <con:parameter>
+              <con:name>request</con:name>
+              <con:value>GetCapabilities</con:value>
+              <con:style>QUERY</con:style>
+              <con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type>
+              <con:default>GetCapabilities</con:default>
+              <con:description xsi:nil="true"/>
+            </con:parameter>
+          <con:parameter><con:name>version</con:name><con:value>${#TestSuite#version}</con:value><con:style>QUERY</con:style></con:parameter><con:parameter><con:name>service</con:name><con:value>${#TestSuite#service}</con:value><con:style>QUERY</con:style></con:parameter></con:parameters>
+        </con:config>
+      </con:testStep><con:testStep name="GetCapabilities 3" type="httprequest" id="7388b50f-3891-42f5-8d8d-8279a0051b28">
+        <con:settings/>
+        <con:config method="GET" name="GetCapabilities 3" timeout="0" xsi:type="con:HttpRequest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="Authorization" value="Basic Og==" xmlns="http://eviware.com/soapui/config"/></con:setting>
+          </con:settings>
+          <con:encoding>UTF-8</con:encoding>
+          <con:endpoint>http://kreios.interactive-instruments.de/aaa-suite/cgi-bin/alkis/sf/wfs</con:endpoint>
+          <con:request/>
+          <con:assertion type="Simple Schema Validator" name="TR-V2##R.1: Another test for req 1" id="7239a318-4ac5-45a1-b5e8-d2fdcc4e972b"><con:configuration><pathToXSD>xsi:schemaLocation</pathToXSD></con:configuration></con:assertion><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters>
+            
+            
+            <con:parameter>
+              <con:name>request</con:name>
+              <con:value>GetCapabilities</con:value>
+              <con:style>QUERY</con:style>
+              <con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type>
+              <con:default>GetCapabilities</con:default>
+              <con:description xsi:nil="true"/>
+            </con:parameter>
+          <con:parameter><con:name>version</con:name><con:value>${#TestSuite#version}</con:value><con:style>QUERY</con:style></con:parameter><con:parameter><con:name>service</con:name><con:value>${#TestSuite#service}</con:value><con:style>QUERY</con:style></con:parameter></con:parameters>
+        </con:config>
+      </con:testStep><con:testStep name="GetCapabilities 4" type="httprequest" id="8d6134b9-681c-4944-b8ac-690601889a0d">
+        <con:settings/>
+        <con:config method="GET" name="GetCapabilities 4" timeout="0" xsi:type="con:HttpRequest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:description>This test step has no assertions</con:description><con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;entry key="Authorization" value="Basic Og==" xmlns="http://eviware.com/soapui/config"/></con:setting>
+          </con:settings>
+          <con:encoding>UTF-8</con:encoding>
+          <con:endpoint>http://kreios.interactive-instruments.de/aaa-suite/cgi-bin/alkis/sf/wfs</con:endpoint>
+          <con:request/>
+          <con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters>
+            
+            
+            <con:parameter>
+              <con:name>request</con:name>
+              <con:value>GetCapabilities</con:value>
+              <con:style>QUERY</con:style>
+              <con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</con:type>
+              <con:default>GetCapabilities</con:default>
+              <con:description xsi:nil="true"/>
+            </con:parameter>
+          <con:parameter><con:name>version</con:name><con:value>${#TestSuite#version}</con:value><con:style>QUERY</con:style></con:parameter><con:parameter><con:name>service</con:name><con:value>${#TestSuite#service}</con:value><con:style>QUERY</con:style></con:parameter></con:parameters>
+        </con:config>
+      </con:testStep><con:testStep type="groovy" name="Groovy Script" id="4cc521c2-2bdd-4064-b047-0ac65fe3a727"><con:settings/><con:config><script>return true;</script></con:config></con:testStep><con:testStep type="delay" name="Delay" id="669d3bb9-7b46-402c-9982-2679bdacf4fe"><con:settings/><con:config><delay>500</delay></con:config></con:testStep><con:testStep type="properties" name="Properties" id="ff434b7f-21f1-4c59-99c8-f847003b3152"><con:settings/><con:config xsi:type="con:PropertiesStep" saveFirst="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:properties><con:property><con:name>testProperty</con:name><con:value>true</con:value></con:property></con:properties></con:config></con:testStep><con:testStep type="transfer" name="Property Transfer" id="0c8ee399-e60c-4a5e-9553-b47d7e8e8530"><con:settings/><con:config xsi:type="con:PropertyTransfersStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:transfers setNullOnMissingSource="true" transferTextContent="true" failOnError="true" ignoreEmpty="false" transferToAll="false" useXQuery="false" entitize="false" transferChildNodes="false"><con:name>testTransfer</con:name><con:sourceType>ResponseAsXml</con:sourceType><con:sourceStep>GetCapabilities 4</con:sourceStep><con:sourcePath>exists(/*:WFS_Capabilities)</con:sourcePath><con:targetType>testProperty</con:targetType><con:targetStep>Properties</con:targetStep></con:transfers></con:config></con:testStep><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-02-06T17:24:04.192+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-02-06T17:24:04.192+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value>TR-V1###TR-V2</con:value></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 3 - blank" searchProperties="true" id="56f2b244-e5b3-4dd2-9958-75759bd7b80e"><con:description>SEL has to handle TestCases without test steps.</con:description><con:settings/><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-01-13T12:24:46.785+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value/></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-01-13T14:10:45.487+01:00</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 4 deactivated" searchProperties="true" id="20e68a93-169e-43b5-a398-beca067d8308" disabled="true"><con:description>SEL has to handle TestCases which are deactivated and without test steps</con:description><con:settings/><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-02-06T17:20:26.105+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-02-06T17:20:26.106+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value/></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 5 deactivated but has test steps" searchProperties="true" id="5d62f1d6-e930-4c9e-9f0b-90febcbe71ad" disabled="true"><con:settings/><con:testStep type="calltestcase" name="Run TestCase" id="8f257068-27d8-424c-802b-4682548decd5"><con:settings/><con:config xsi:type="con:RunTestCaseStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:targetTestCase>878030bc-0afb-467d-8826-b0ad381c2ac6</con:targetTestCase><con:properties><con:property><con:name>qaf.ShortDescription</con:name></con:property><con:property><con:name>qaf.Author</con:name></con:property><con:property><con:name>qaf.CreationDate</con:name></con:property><con:property><con:name>qaf.Version</con:name></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name></con:property><con:property><con:name>qaf.ExpectedResults</con:name></con:property><con:property><con:name>qaf.Status</con:name></con:property><con:property><con:name>qaf.LastUpdateDate</con:name></con:property><con:property><con:name>qaf.LastEditor</con:name></con:property></con:properties><con:returnProperties/><con:runMode>PARALLELL</con:runMode></con:config></con:testStep><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-02-06T17:21:19.737+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-02-06T17:21:19.738+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value/></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 6 - RunTestCase" searchProperties="true" id="f9ca30ba-51d9-4e93-9f07-d583e554434a"><con:settings/><con:testStep type="calltestcase" name="Run TestCase" id="04c9a934-40cb-4fc7-be00-38388815a7ef"><con:settings/><con:config xsi:type="con:RunTestCaseStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:targetTestCase>878030bc-0afb-467d-8826-b0ad381c2ac6</con:targetTestCase><con:properties><con:property><con:name>qaf.ShortDescription</con:name></con:property><con:property><con:name>qaf.Author</con:name></con:property><con:property><con:name>qaf.CreationDate</con:name></con:property><con:property><con:name>qaf.Version</con:name></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name></con:property><con:property><con:name>qaf.ExpectedResults</con:name></con:property><con:property><con:name>qaf.Status</con:name></con:property><con:property><con:name>qaf.LastUpdateDate</con:name></con:property><con:property><con:name>qaf.LastEditor</con:name></con:property></con:properties><con:returnProperties/><con:runMode>PARALLELL</con:runMode></con:config></con:testStep><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-01-14T17:30:40.277+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-01-14T17:30:40.277+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value/></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property></con:properties></con:testCase><con:properties/></con:testSuite><con:testSuite name="Open report" id="d7801cd7-f370-4cc1-94be-dd47ff14f59a"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Open Report" searchProperties="true" id="70b28f26-0e39-45eb-b4c6-7da523ed4805"><con:settings/><con:testStep type="groovy" name="Open Report" id="6e926fdb-94ed-41da-88cc-e2f0f176c6a5" disabled="true"><con:settings/><con:config><script>import com.eviware.soapui.support.Tools
+
+Tools.openURL(context.expand('${#Env#XTF_SEL_REPORT}')+'\\Report.html')</script></con:config></con:testStep><con:properties><con:property><con:name>qaf.ShortDescription</con:name><con:value/></con:property><con:property><con:name>qaf.Author</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.LastEditor</con:name><con:value>herrmann</con:value></con:property><con:property><con:name>qaf.ExpectedResults</con:name><con:value/></con:property><con:property><con:name>qaf.CreationDate</con:name><con:value>2014-02-06T17:35:03.377+01:00</con:value></con:property><con:property><con:name>qaf.LastUpdateDate</con:name><con:value>2014-02-06T17:35:03.378+01:00</con:value></con:property><con:property><con:name>qaf.Version</con:name><con:value>1.0.0</con:value></con:property><con:property><con:name>qaf.AssociatedRequirements</con:name><con:value/></con:property><con:property><con:name>qaf.Status</con:name><con:value>IMPLEMENTED</con:value></con:property></con:properties></con:testCase><con:properties/><con:setupScript/></con:testSuite><con:properties/><con:wssContainer/><con:afterRunScript>import com.eviware.soapui.impl.wsdl.teststeps.HttpTestRequestStep;
+import com.eviware.soapui.model.testsuite.TestStepResult;
+
+// Get the "requirements" test step
+def requirements = project.getTestSuiteByName("TestSetup")?.
+	getTestCaseByName("Requirements")?.getTestStepByName("Requirements");
+
+log.info("Results: ");
+for( testSuiteR in runner?.getResults() ) {
+	for( testCaseR in testSuiteR?.getResults() ) {
+		for( testStepR in testCaseR?.getResults() ) {
+
+			if(testStepR.getStatus()!=TestStepResult.TestStepStatus.OK) {
+				if (testStepR.testStep instanceof HttpTestRequestStep) {
+					testStepR.testStep.testRequest.assertionList.each{
+						// Extract ID which is seperated with a whitespace
+						String assertionName = it.name;
+						String id = assertionName?.substring( 0, assertionName.indexOf(" ") );
+						
+						if(it.valid) {
+							log.info("Assertion "+assertionName+" passed");
+						}else if(it.failed) {
+							log.error("Assertion "+assertionName+" failed with error:");
+							log.error("  -   "+it.getErrors()[0].getMessage());
+							log.error("  -   Requirements:");
+							
+							// Todo: Save the requirements as an object in a map
+							requirements.getPropertyList().each {
+								if(it.getName().contains(id)) {
+									log.error("   -   "+it.getName()+" :" );
+									log.error("        "+it.getValue());
+								}
+							}							
+						}else{
+							log.warn("Assertion "+assertionName+" is deactivated");
+						}
+					}
+				}
+			}
+		}
+	}
+}
+</con:afterRunScript><con:sensitiveInformation/></con:soapui-project>
