@@ -1,0 +1,183 @@
+///////////////////////////////////////////////////////////////////////////////////////
+//
+// etf-suitd
+//
+///////////////////////////////////////////////////////////////////////////////////////
+
+buildscript {
+    repositories {
+        maven {
+            url "http://services.interactive-instruments.de/etfdev-af/plugins-releases-local"
+            credentials {
+                username 'ii-bda'
+                password '6ozhS683'
+            }}
+    }
+    dependencies {
+        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version:'1.0.19'
+    }
+    dependencies {
+        ant.unjar src: configurations.classpath.files.find {it.path.contains('etf')}, dest: 'build/gradle'
+    }
+}
+apply from: 'build/gradle/ii-bda.gradle'
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+group = 'de.interactive_instruments.etf.testdriver'
+description = "ETF SoapUI test runner"
+
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+ext.testDataDir = project.hasProperty('etf.td.deployment.dir') ?
+        project.getProperty('etf.td.deployment.dir') :
+        project.file('./build/tmp/td').absolutePath
+
+ext.suiTestTpDir = project.file('./build/tmp/testProjects')
+ext.suiTestTrDir = project.file('./build/tmp/testReports')
+
+ext.aeVersion = '1.3.7'
+
+
+repositories {
+	mavenLocal()
+}
+
+configurations {
+    api
+    integrationTest
+}
+
+dependencies {
+
+    api group: 'de.interactive_instruments', name: 'ii-commons-util', version:'1.2.6'+project.snapshotSuffix
+    api group: 'de.interactive_instruments.etf', name: 'etf-model', version:'0.5.7'+project.snapshotSuffix
+    api group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+
+
+    compile("de.interactive_instruments.etf.suim:etf-sui-owsgtl:"+aeVersion+project.snapshotSuffix) {
+        exclude group: 'org.codehaus.groovy'
+    }
+    compile group: 'de.interactive_instruments.etf.suim', name: 'etf-sui-model-mapper', version:"$aeVersion"+project.snapshotSuffix
+    compile group: 'de.interactive_instruments.etf.suim', name: 'etf-sui-plugin', classifier:'plugin', version:"$aeVersion"+project.snapshotSuffix
+
+
+    runtime files('./denied_libs/jms-1.1.jar')
+
+    // Get libs for SoapUI: workaround for defect SoapUI POM in the SoapUI repository...
+    compile group: 'cajo', name: 'cajo', version:'1.142'
+    compile group: 'gnu.cajo', name: 'cajo', version:'1.142'
+    compile group: 'jtidy', name: 'jtidy', version:'r872'
+
+	// compile group: 'com.smartbear.soapui', name: 'soapui', version:'4.6.4'
+    compile ('com.smartbear.soapui:soapui-maven-plugin:4.6.4') {
+        // exclude module: 'commons-logging'
+        // exclude module: 'cajo'
+        exclude module: 'org.codehaus.groovy'
+    }
+
+	compile group: 'commons-lang', name: 'commons-lang', version:'2.4'
+
+    integrationTest group: 'junit', name: 'junit', version: '4.11'
+    integrationTest group: 'de.interactive_instruments.etf.testing', name: 'etf-sui-integration-test-resources', version: '1.0.0'+project.snapshotSuffix
+}
+
+configurations {
+	// jms is pulled in via several soapui dependencies but gradle denies to fetch
+	// it. So just block it.
+	all*.exclude group: 'javax.jms', module: 'jms'
+
+    compile.extendsFrom api
+    testCompile.extendsFrom integrationTest
+}
+
+task copyTdToTdDir(dependsOn: jar) << {
+	copy {
+		from jar
+		into "$testDataDir/sui/bin"
+	}
+    println "Copied test driver to $testDataDir"
+}
+
+def allLibs = configurations.runtime + configurations.compile -
+        configurations.compile.filter { it.name.startsWith('etf-sui-plugin') } -
+        configurations.compile.filter { it.name.startsWith('etf-model') } -
+        configurations.compile.filter { it.name.startsWith('ii-commons-util') } -
+        configurations.compile.filter { it.name.startsWith('slf4j-api') } -
+        configurations.compile.filter { it.name.startsWith('jetty') } -
+        configurations.compile.filter { it.name.startsWith('xml-apis') } -
+        configurations.compile.filter { it.name.startsWith('xercesImpl') } -
+        configurations.compile.filter { it.name.startsWith('log4j') }
+
+task copyLibsToTdDir << {
+	copy {
+		from allLibs
+		into "$testDataDir/sui/lib"
+	}
+}
+
+task copyPluginsToTdDir << {
+	copy {
+		from configurations.compile.filter { it.name.startsWith('etf-sui-plugin') }
+		into "$testDataDir/sui/plugins"
+	}
+}
+
+task extractIntegrationTestProjects << {
+    copy {
+        def jar = configurations.testCompile.filter { it.name.startsWith('etf-sui-integration-test-resources') }
+        from jar.collect { zipTree(it) }
+        into "$suiTestTpDir"
+        include 'sui/**'
+    }
+}
+
+// Drop classloader for integration tests
+sourceSets {
+    test {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath = configurations.api + test.output + configurations.integrationTest
+        }
+    }
+}
+
+jar.doFirst {
+    manifest {
+        attributes(
+                'Package-Title': 'SoapUI',
+                'Package-Vendor': 'Smartbear'
+        )
+    }
+}
+
+test {
+    environment "ETF_TD_DEPLOYMENT_DIR", testDataDir
+    environment "ETF_TESTING_SUI_TP_DIR", suiTestTpDir.absolutePath
+    environment "ETF_TESTING_SUI_TR_DIR", suiTestTrDir.absolutePath
+    dependsOn = ["compileTestJava", "extractIntegrationTestProjects", "copyTdToTdDir", "copyLibsToTdDir", "copyPluginsToTdDir"]
+}
+
+
+install {
+    dependsOn = ["driverZip", "copyTdToTdDir", "copyLibsToTdDir", "copyPluginsToTdDir"]
+}
+
+task driverZip(type: Zip) {
+    baseName = 'etf-suitd'
+    into('sui/bin') {
+        from jar
+    }
+    into('sui/lib') {
+        from allLibs
+    }
+    into('sui/plugins') {
+        from configurations.compile.filter { it.name.startsWith('etf-sui-plugin') }
+    }
+}
+
+artifacts {
+    archives driverZip
+}
