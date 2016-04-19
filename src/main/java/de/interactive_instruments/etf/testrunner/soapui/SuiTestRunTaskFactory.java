@@ -21,6 +21,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.eviware.soapui.DefaultSoapUICore;
+import com.eviware.soapui.IISoapUICore;
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.SoapUIExtensionClassLoader;
 import com.eviware.soapui.impl.wsdl.support.xsd.SchemaUtils;

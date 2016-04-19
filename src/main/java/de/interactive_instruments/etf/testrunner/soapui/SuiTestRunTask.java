@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import com.eviware.soapui.STestCaseRunner;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.model.testsuite.TestProperty;
 import com.eviware.soapui.settings.HttpSettings;
