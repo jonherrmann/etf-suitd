@@ -14,7 +14,7 @@ buildscript {
             }}
     }
     dependencies {
-        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version:'1.0.19'
+        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version:'1.0.22'
     }
     dependencies {
         ant.unjar src: configurations.classpath.files.find {it.path.contains('etf')}, dest: 'build/gradle'
@@ -28,9 +28,6 @@ group = 'de.interactive_instruments.etf.testdriver'
 description = "ETF SoapUI test runner"
 
 
-apply plugin: 'java'
-apply plugin: 'maven'
-
 ext.testDataDir = project.hasProperty('etf.td.deployment.dir') ?
         project.getProperty('etf.td.deployment.dir') :
         project.file('./build/tmp/td').absolutePath
@@ -39,7 +36,7 @@ ext.suiTestTpDir = project.file('./build/tmp/testProjects')
 ext.suiTestTrDir = project.file('./build/tmp/testReports')
 
 ext.aeVersion = '1.3.7'
-
+ext.groovyVersion = '2.4.7'
 
 repositories {
 	mavenLocal()
@@ -54,12 +51,9 @@ dependencies {
 
     api group: 'de.interactive_instruments', name: 'ii-commons-util', version:'1.2.6'+project.snapshotSuffix
     api group: 'de.interactive_instruments.etf', name: 'etf-model', version:'0.5.7'+project.snapshotSuffix
-    api group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+    api group: 'org.slf4j', name: 'slf4j-api', version: etf_slf4jApiVersion
 
-
-    compile("de.interactive_instruments.etf.suim:etf-sui-owsgtl:"+aeVersion+project.snapshotSuffix) {
-        exclude group: 'org.codehaus.groovy'
-    }
+    compile("de.interactive_instruments.etf.suim:etf-sui-owsgtl:"+aeVersion+project.snapshotSuffix)
     compile group: 'de.interactive_instruments.etf.suim', name: 'etf-sui-model-mapper', version:"$aeVersion"+project.snapshotSuffix
     compile group: 'de.interactive_instruments.etf.suim', name: 'etf-sui-plugin', classifier:'plugin', version:"$aeVersion"+project.snapshotSuffix
 
@@ -75,12 +69,15 @@ dependencies {
     compile ('com.smartbear.soapui:soapui-maven-plugin:4.6.4') {
         // exclude module: 'commons-logging'
         // exclude module: 'cajo'
-        exclude module: 'org.codehaus.groovy'
+
     }
 
-	compile group: 'commons-lang', name: 'commons-lang', version:'2.4'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyVersion
 
-    integrationTest group: 'junit', name: 'junit', version: '4.11'
+	compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
+
+    integrationTest group: 'junit', name: 'junit', version: etf_junitTestVersion
+    integrationTest group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyVersion
     integrationTest group: 'de.interactive_instruments.etf.testing', name: 'etf-sui-integration-test-resources', version: '1.0.0'+project.snapshotSuffix
 }
 
@@ -88,6 +85,7 @@ configurations {
 	// jms is pulled in via several soapui dependencies but gradle denies to fetch
 	// it. So just block it.
 	all*.exclude group: 'javax.jms', module: 'jms'
+	all*.exclude group: 'com.jgoodies', module: 'forms'
 
     compile.extendsFrom api
     testCompile.extendsFrom integrationTest

@@ -129,7 +129,8 @@ public class SuiTestRunTaskFactoryTest {
 	@After
 	public void tearDown() throws Exception {
 		loader.release();
-		assertEquals(Collections.EMPTY_MAP, loader.getFactories());
+		assertNotNull(loader.getFactories());
+		assertTrue(loader.getFactories().isEmpty());
 	}
 
 	@Test
@@ -166,7 +167,7 @@ public class SuiTestRunTaskFactoryTest {
 
 		assertNotNull(report.getTestSuiteResults().get(3).getTestCaseResults().get(1));
 		assertNotNull(report.getTestSuiteResults().get(3).getTestCaseResults().get(1).getTestStepResults().get(0));
-		assertEquals("HTTP Request 1", report.getTestSuiteResults().get(3).getTestCaseResults().get(1).getTestStepResults().get(0).getAssociatedTestStep().getLabel());
+		assertEquals("HTTP Request 1 (disabled)", report.getTestSuiteResults().get(3).getTestCaseResults().get(1).getTestStepResults().get(0).getAssociatedTestStep().getLabel());
 	}
 
 }
