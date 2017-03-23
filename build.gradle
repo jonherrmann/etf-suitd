@@ -14,7 +14,7 @@ buildscript {
             }}
     }
     dependencies {
-        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version:'1.0.23'
+        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version:'1.0.24'
     }
     dependencies {
         ant.unjar src: configurations.classpath.files.find {it.path.contains('etf')}, dest: 'build/gradle'
@@ -60,7 +60,7 @@ dependencies {
     compile ('com.smartbear.soapui:soapui:'+soapuiVersion) {
         exclude module: 'commons-logging'
         exclude module: 'log4j'
-        exclude module: 'jtidy'
+        // exclude module: 'jtidy'
         exclude module: 'cajo'
         exclude group: 'com.jgoodies'
     }
