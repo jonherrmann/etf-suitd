@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package de.interactive_instruments.etf.testdriver.sui;
 
+import static de.interactive_instruments.etf.sel.mapping.Types.SUI_SUPPORTED_TEST_OBJECT_TYPES;
 import static de.interactive_instruments.etf.sel.mapping.Types.TEST_ITEM_TYPES;
-import static de.interactive_instruments.etf.sel.mapping.Types.TEST_OBJECT_TYPES;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,20 +78,12 @@ class SuiTypeLoader extends EtsTypeLoader {
 		}
 
 		// First propagate static types
-		final WriteDao<TestObjectTypeDto> testObjectTypeDao = ((WriteDao<TestObjectTypeDto>) dataStorageCallback.getDao(TestObjectTypeDto.class));
-		final WriteDao<TestItemTypeDto> testItemTypeDao = ((WriteDao<TestItemTypeDto>) dataStorageCallback.getDao(TestItemTypeDto.class));
+		final WriteDao<TestItemTypeDto> testItemTypeDao = ((WriteDao<TestItemTypeDto>) dataStorageCallback
+				.getDao(TestItemTypeDto.class));
 		try {
-			testObjectTypeDao.deleteAllExisting(TEST_OBJECT_TYPES.keySet());
-			testObjectTypeDao.addAll(TEST_OBJECT_TYPES.values());
-
 			testItemTypeDao.deleteAllExisting(TEST_ITEM_TYPES.keySet());
 			testItemTypeDao.addAll(TEST_ITEM_TYPES.values());
 		} catch (final StorageException e) {
-			try {
-				testObjectTypeDao.deleteAllExisting(TEST_OBJECT_TYPES.keySet());
-			} catch (StorageException e2) {
-				ExcUtils.suppress(e2);
-			}
 			try {
 				testItemTypeDao.deleteAllExisting(TEST_ITEM_TYPES.keySet());
 			} catch (StorageException e3) {
@@ -107,10 +99,10 @@ class SuiTypeLoader extends EtsTypeLoader {
 	}
 
 	TestObjectTypeDto getTestObjectTypeById(final EID id) {
-		return TEST_OBJECT_TYPES.get(id);
+		return SUI_SUPPORTED_TEST_OBJECT_TYPES.get(id);
 	}
 
 	Collection<TestObjectTypeDto> getTestObjectTypes() {
-		return TEST_OBJECT_TYPES.values();
+		return SUI_SUPPORTED_TEST_OBJECT_TYPES.values();
 	}
 }

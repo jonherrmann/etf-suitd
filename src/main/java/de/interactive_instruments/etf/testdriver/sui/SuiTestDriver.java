@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,10 +151,6 @@ public class SuiTestDriver implements TestDriver {
 		dataStorageCallback = DataStorageRegistry.instance().get(configProperties.getProperty(ETF_DATA_STORAGE_NAME));
 		if (dataStorageCallback == null) {
 			throw new InvalidStateTransitionException("Data Storage not set");
-		}
-
-		if (configProperties.getProperty("org.basex.path") != null) {
-			System.setProperty("org.basex.path", configProperties.getProperty("org.basex.path"));
 		}
 
 		SoapUI.setSoapUICore(IISoapUICore.createDefault(), true);
