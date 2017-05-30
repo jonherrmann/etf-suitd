@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.eviware.soapui.impl.wsdl.WsdlProject;
 import de.interactive_instruments.IFile;
 import de.interactive_instruments.etf.dal.dao.DataStorage;
 import de.interactive_instruments.etf.dal.dto.Dto;
+import de.interactive_instruments.etf.dal.dto.IncompleteDtoException;
 import de.interactive_instruments.etf.dal.dto.result.TestTaskResultDto;
 import de.interactive_instruments.etf.dal.dto.run.TestTaskDto;
 import de.interactive_instruments.etf.model.EID;
@@ -38,7 +39,7 @@ import de.interactive_instruments.exceptions.config.ConfigurationException;
 /**
  * BaseX test run task for executing XQuery on a BaseX database.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 class SuiTestTask<T extends Dto> extends AbstractTestTask {
 
@@ -68,6 +69,9 @@ class SuiTestTask<T extends Dto> extends AbstractTestTask {
 	@Override
 	protected void doInit() throws ConfigurationException, InitializationException {
 		try {
+			if(testTaskDto.getExecutableTestSuite().getLocalPath()==null) {
+				throw new InitializationException("Required property 'localPath' must be set!");
+			}
 			final IFile originalProjectFile = new IFile(testTaskDto.getExecutableTestSuite().getLocalPath());
 			originalProjectFile.expectFileIsReadable();
 			tmpProjectFile = originalProjectFile.createTempCopy(

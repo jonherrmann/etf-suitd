@@ -16,6 +16,7 @@
 package de.interactive_instruments.etf.testdriver.sui;
 
 import static de.interactive_instruments.etf.EtfConstants.ETF_DATA_STORAGE_NAME;
+import static de.interactive_instruments.etf.sel.mapping.Types.SUI_SUPPORTED_TEST_OBJECT_TYPES;
 import static de.interactive_instruments.etf.testdriver.sui.SuiTestDriver.SUI_TEST_DRIVER_EID;
 
 import java.io.File;
@@ -43,8 +44,10 @@ import de.interactive_instruments.etf.dal.dto.capabilities.TestObjectTypeDto;
 import de.interactive_instruments.etf.dal.dto.result.TestTaskResultDto;
 import de.interactive_instruments.etf.dal.dto.run.TestTaskDto;
 import de.interactive_instruments.etf.dal.dto.test.ExecutableTestSuiteDto;
+import de.interactive_instruments.etf.model.DefaultEidSet;
 import de.interactive_instruments.etf.model.EID;
 import de.interactive_instruments.etf.model.EidFactory;
+import de.interactive_instruments.etf.model.EidSet;
 import de.interactive_instruments.etf.testdriver.*;
 import de.interactive_instruments.exceptions.*;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
@@ -55,14 +58,12 @@ import de.interactive_instruments.xtf.SOAPUI_I;
 /**
  * SoapUI test driver component
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 @ComponentInitializer(id = SUI_TEST_DRIVER_EID)
-public class SuiTestDriver implements TestDriver {
+public class SuiTestDriver extends AbstractTestDriver {
 
 	public static final String SUI_TEST_DRIVER_EID = "4838e01b-4186-4d2d-a93a-414b9e9a49a7";
-	final private ConfigProperties configProperties = new ConfigProperties(EtfConstants.ETF_PROJECTS_DIR);
-	private SuiTypeLoader typeLoader;
 	private DataStorage dataStorageCallback;
 	private boolean pluginsInitialized = false;
 
@@ -93,32 +94,18 @@ public class SuiTestDriver implements TestDriver {
 		}
 	};
 
-	@Override
-	public Collection<ExecutableTestSuiteDto> getExecutableTestSuites() {
-		return typeLoader.getExecutableTestSuites();
+	public SuiTestDriver() {
+		super(new ConfigProperties(EtfConstants.ETF_PROJECTS_DIR));
 	}
 
 	@Override
 	public Collection<TestObjectTypeDto> getTestObjectTypes() {
-		return typeLoader.getTestObjectTypes();
+		return SUI_SUPPORTED_TEST_OBJECT_TYPES.values();
 	}
 
 	@Override
 	final public ComponentInfo getInfo() {
 		return COMPONENT_INFO;
-	}
-
-	@Override
-	public void lookupExecutableTestSuites(final EtsLookupRequest etsLookupRequest) {
-		final Set<EID> etsIds = etsLookupRequest.getUnknownEts();
-		final Set<ExecutableTestSuiteDto> knownEts = new HashSet<>();
-		for (final EID etsId : etsIds) {
-			final ExecutableTestSuiteDto ets = typeLoader.getExecutableTestSuiteById(etsId);
-			if (ets != null) {
-				knownEts.add(ets);
-			}
-		}
-		etsLookupRequest.addKnownEts(knownEts);
 	}
 
 	@Override
@@ -140,14 +127,8 @@ public class SuiTestDriver implements TestDriver {
 	}
 
 	@Override
-	public ConfigPropertyHolder getConfigurationProperties() {
-		return this.configProperties;
-	}
-
-	@Override
-	final public void init()
+	final public void doInit()
 			throws ConfigurationException, IllegalStateException, InitializationException, InvalidStateTransitionException {
-		configProperties.expectAllRequiredPropertiesSet();
 		dataStorageCallback = DataStorageRegistry.instance().get(configProperties.getProperty(ETF_DATA_STORAGE_NAME));
 		if (dataStorageCallback == null) {
 			throw new InvalidStateTransitionException("Data Storage not set");
@@ -159,7 +140,6 @@ public class SuiTestDriver implements TestDriver {
 
 		typeLoader = new SuiTypeLoader(dataStorageCallback);
 		typeLoader.getConfigurationProperties().setPropertiesFrom(configProperties, true);
-		typeLoader.init();
 	}
 
 	private void initPlugins(final IFile pluginDir) {
@@ -218,12 +198,6 @@ public class SuiTestDriver implements TestDriver {
 	}
 
 	@Override
-	public boolean isInitialized() {
-		return dataStorageCallback != null && typeLoader != null && typeLoader.isInitialized();
-	}
-
-	@Override
-	public void release() {
-		typeLoader.release();
+	public void doRelease() {
 	}
 }

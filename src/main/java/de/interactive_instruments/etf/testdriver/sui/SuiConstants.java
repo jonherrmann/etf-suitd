@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ final class SuiConstants {
 	final static String TRANSLATION_TEMPLATE_ID_PROPERTY = "etf.translation.template.collection.id";
 
 	final static String TAG_IDS_PROPERTY = "etf.tag.ids";
+
+	final static String DEPENDENCY_IDS_PROPERTY = "etf.dependency.ids";
 
 	final static String TESTOBJECT_TYPE_IDS_PROPERTY = "etf.testobject.ids";
 }

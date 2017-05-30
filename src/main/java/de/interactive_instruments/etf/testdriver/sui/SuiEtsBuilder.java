@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,28 @@
  */
 package de.interactive_instruments.etf.testdriver.sui;
 
+import static de.interactive_instruments.etf.EtfConstants.ETF_TRANSLATION_TEMPLATE_BUNDLE_ID_PK;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.model.project.ProjectFactoryRegistry;
 import com.eviware.soapui.support.SoapUIException;
+
+import de.interactive_instruments.etf.dal.dto.Dto;
+import de.interactive_instruments.etf.model.DefaultEidHolderMap;
+import de.interactive_instruments.etf.model.EidHolderMap;
+import org.apache.xmlbeans.XmlException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.interactive_instruments.LogUtils;
 import de.interactive_instruments.SUtils;
 import de.interactive_instruments.etf.EtfConstants;
@@ -33,21 +52,9 @@ import de.interactive_instruments.etf.sel.mapping.EtsMapper;
 import de.interactive_instruments.etf.testdriver.TypeBuildingFileVisitor;
 import de.interactive_instruments.exceptions.ObjectWithIdNotFoundException;
 import de.interactive_instruments.exceptions.StorageException;
-import org.apache.xmlbeans.XmlException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
-
-import static de.interactive_instruments.etf.EtfConstants.ETF_TRANSLATION_TEMPLATE_BUNDLE_ID_PK;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTestSuiteDto> {
 
@@ -55,9 +62,9 @@ class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTes
 	private final Dao<TranslationTemplateBundleDto> translationTemplateBundleDao;
 	private final Dao<TagDto> tagDao;
 	private final static Logger logger = LoggerFactory.getLogger(SuiEtsBuilder.class);
+	private final EidHolderMap<ExecutableTestSuiteDto> testDriverEtsCrossDep = new DefaultEidHolderMap<>();
 
-	SuiEtsBuilder(
-			final Dao<ExecutableTestSuiteDto> writeDao,
+	SuiEtsBuilder(final Dao<ExecutableTestSuiteDto> writeDao,
 			final Dao<TranslationTemplateBundleDto> translationTemplateBundleDao,
 			final Dao<TagDto> tagDao) {
 		this.writeDao = (StreamWriteDao<ExecutableTestSuiteDto>) writeDao;
@@ -66,21 +73,24 @@ class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTes
 	}
 
 	private static class SuiEtsBuilderCmd extends TypeBuildingFileVisitor.TypeBuilderCmd<ExecutableTestSuiteDto> {
-
 		private final StreamWriteDao<ExecutableTestSuiteDto> writeDao;
 		private final Dao<TranslationTemplateBundleDto> translationTemplateBundleDao;
 		private final Dao<TagDto> tagDao;
 		private final WsdlProject project;
+		private final EidHolderMap<ExecutableTestSuiteDto> testDriverEtsCrossDep;
 
-		SuiEtsBuilderCmd(final Path path, final StreamWriteDao<ExecutableTestSuiteDto> writeDao,
+		SuiEtsBuilderCmd(final Path path,
+				final StreamWriteDao<ExecutableTestSuiteDto> writeDao,
 				final Dao<TranslationTemplateBundleDto> translationTemplateBundleDao,
-				final Dao<TagDto> tagDao) throws XmlException, IOException, SoapUIException {
+				final Dao<TagDto> tagDao,
+				final EidHolderMap<ExecutableTestSuiteDto> testDriverEtsCrossDep) throws XmlException, IOException, SoapUIException {
 			super(path);
 			this.writeDao = writeDao;
 			this.translationTemplateBundleDao = translationTemplateBundleDao;
 			this.tagDao = tagDao;
 			this.project = (WsdlProject) ProjectFactoryRegistry.getProjectFactory(
 					"wsdl").createNew(path.toString());
+			this.testDriverEtsCrossDep = testDriverEtsCrossDep;
 			this.id = project.getId();
 		}
 
@@ -112,7 +122,7 @@ class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTes
 								executableTestSuiteDto.getReference(), e);
 						executableTestSuiteDto.setRemoteResource(URI.create("http://none"));
 					}
-				}else{
+				} else {
 					executableTestSuiteDto.setRemoteResource(URI.create("http://none"));
 				}
 
@@ -123,7 +133,8 @@ class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTes
 								EidFactory.getDefault().createUUID(translationTemplateId)).getDto();
 						executableTestSuiteDto.setTranslationTemplateBundle(translationTemplateBundleDto);
 					} catch (ObjectWithIdNotFoundException e) {
-						logger.error(LogUtils.FATAL_MESSAGE, "Could not load Translation Template Bundle for Executable Test Suite {}",
+						logger.error(LogUtils.FATAL_MESSAGE,
+								"Could not load Translation Template Bundle for Executable Test Suite {}",
 								executableTestSuiteDto.getDescriptiveLabel(), e);
 					}
 				}
@@ -155,11 +166,20 @@ class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTes
 					executableTestSuiteDto.setTranslationTemplateBundle(
 							translationTemplateBundleDao.getById(EidFactory.getDefault().createAndPreserveStr(id)).getDto());
 				}
-				project.release();
-				if (writeDao.exists(executableTestSuiteDto.getId())) {
-					writeDao.delete(executableTestSuiteDto.getId());
+
+				final String dependencyIds = project.getPropertyValue(SuiConstants.DEPENDENCY_IDS_PROPERTY);
+				if (!SUtils.isNullOrEmpty(dependencyIds)) {
+					final String[] deps = dependencyIds.split(",");
+					for (final String d : deps) {
+						final ExecutableTestSuiteDto p = new ExecutableTestSuiteDto();
+						p.setId(EidFactory.getDefault().createUUID(d.trim()));
+						executableTestSuiteDto.addDependency(p);
+					}
 				}
-				writeDao.add(executableTestSuiteDto);
+
+				// release resources
+				project.release();
+
 				return executableTestSuiteDto;
 			} catch (StorageException | ObjectWithIdNotFoundException e) {
 				logger.error("Error creating Executable Test Suite from file {}", path, e);
@@ -172,11 +192,13 @@ class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTes
 	public TypeBuildingFileVisitor.TypeBuilderCmd<ExecutableTestSuiteDto> prepare(final Path path) {
 		if (path.toString().endsWith(SuiConstants.PROJECT_SUFFIX)) {
 			try {
-				return new SuiEtsBuilderCmd(path, writeDao, translationTemplateBundleDao, tagDao);
+				return new SuiEtsBuilderCmd(path, writeDao, translationTemplateBundleDao, tagDao, testDriverEtsCrossDep);
 			} catch (IOException | XmlException | SoapUIException e) {
 				logger.error("Could not prepare ETS {} ", path, e);
 			}
 		}
 		return null;
 	}
+
+
 }
