@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.eviware.soapui.security.SecurityTest;
 import de.interactive_instruments.etf.testdriver.AbstractTestTaskProgress;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 class SuiTestTaskProgress extends AbstractTestTaskProgress implements ProjectListener, TestSuiteListener {
 
