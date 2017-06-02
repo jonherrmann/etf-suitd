@@ -41,9 +41,8 @@ import de.interactive_instruments.exceptions.config.ConfigurationException;
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
-class SuiTestTask<T extends Dto> extends AbstractTestTask {
+class SuiTestTask extends AbstractTestTask {
 
-	private final DataStorage dataStorageCallback;
 	private WsdlProject wsdlProject = null;
 	private STestCaseRunner runner = null;
 	private IFile tmpProjectFile;
@@ -53,17 +52,13 @@ class SuiTestTask<T extends Dto> extends AbstractTestTask {
 	 *
 	 * @throws IOException I/O error
 	 */
-	public SuiTestTask(final TestTaskDto testTaskDto, final DataStorage dataStorageCallback) {
+	public SuiTestTask(final TestTaskDto testTaskDto) {
 		super(testTaskDto, new SuiTestTaskProgress(), SuiTestTask.class.getClassLoader());
-		this.dataStorageCallback = dataStorageCallback;
 	}
 
 	@Override
 	protected void doRun() throws Exception {
 		runner.runRunner();
-		testTaskDto.setTestTaskResult(
-				dataStorageCallback.getDao(TestTaskResultDto.class).getById(
-						EidFactory.getDefault().createAndPreserveStr(resultCollector.getTestTaskResultId())).getDto());
 	}
 
 	@Override
@@ -113,11 +108,11 @@ class SuiTestTask<T extends Dto> extends AbstractTestTask {
 			// Set project file
 			runner.setProjectFile(tmpProjectFile.getAbsolutePath());
 
-			runner.setOutputFolder(resultCollector.getTempDir().getAbsolutePath());
+			runner.setOutputFolder(getCollector().getTempDir().getAbsolutePath());
 
-			wsdlProject = runner.initProject(resultCollector);
+			wsdlProject = runner.initProject(getCollector());
 			if (wsdlProject.getActiveEnvironment() instanceof TestResultCollectorInjector) {
-				((TestResultCollectorInjector) wsdlProject.getActiveEnvironment()).setTestResultCollector(this.resultCollector);
+				((TestResultCollectorInjector) wsdlProject.getActiveEnvironment()).setTestResultCollector(getPersistor().getResultCollector());
 			}
 
 			getLogger().info("Project Properties: ");

@@ -1,0 +1,192 @@
+/**
+ * Copyright 2010-2017 interactive instruments GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.interactive_instruments.etf.testdriver.sui;
+
+import static de.interactive_instruments.etf.testdriver.sui.SuiTestDriver.SUI_TEST_DRIVER_EID;
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Date;
+
+import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.interactive_instruments.IFile;
+import de.interactive_instruments.etf.EtfConstants;
+import de.interactive_instruments.etf.component.ComponentLoadingException;
+import de.interactive_instruments.etf.component.ComponentNotLoadedException;
+import de.interactive_instruments.etf.dal.dao.WriteDao;
+import de.interactive_instruments.etf.dal.dao.basex.BsxDataStorage;
+import de.interactive_instruments.etf.dal.dto.capabilities.ResourceDto;
+import de.interactive_instruments.etf.dal.dto.capabilities.TestObjectDto;
+import de.interactive_instruments.etf.dal.dto.capabilities.TestObjectTypeDto;
+import de.interactive_instruments.etf.dal.dto.result.TestTaskResultDto;
+import de.interactive_instruments.etf.dal.dto.run.TestRunDto;
+import de.interactive_instruments.etf.dal.dto.run.TestTaskDto;
+import de.interactive_instruments.etf.dal.dto.test.ExecutableTestSuiteDto;
+import de.interactive_instruments.etf.model.EidFactory;
+import de.interactive_instruments.etf.testdriver.DefaultTestDriverManager;
+import de.interactive_instruments.etf.testdriver.TaskPoolRegistry;
+import de.interactive_instruments.etf.testdriver.TestDriverManager;
+import de.interactive_instruments.etf.testdriver.TestRun;
+import de.interactive_instruments.exceptions.*;
+import de.interactive_instruments.exceptions.config.ConfigurationException;
+import de.interactive_instruments.properties.PropertyUtils;
+
+/**
+ *
+ *
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
+ */
+public class SuiTestRunTaskFactoryTest {
+
+	// DO NOT RUN THE TESTS IN THE IDE BUT WITH GRADLE
+
+	private TestDriverManager testDriverManager = null;
+	private IFile testProjectDir = null;
+
+	private TestRunDto createTestRunDtoForProject(final String url)
+			throws ComponentNotLoadedException, ConfigurationException, URISyntaxException,
+			StorageException, ObjectWithIdNotFoundException, IOException {
+
+		final TestObjectDto testObjectDto = new TestObjectDto();
+		testObjectDto.setId(EidFactory.getDefault().createAndPreserveStr("fcfe9677-7b77-41dd-a17c-56884f60824f"));
+		testObjectDto.setLabel("Cite 2013 WFS");
+		final TestObjectTypeDto wfsTestObjecType = SuiTestUtils.DATA_STORAGE.getDao(TestObjectTypeDto.class).getById(
+				EidFactory.getDefault().createAndPreserveStr("9b6ef734-981e-4d60-aa81-d6730a1c6389")).getDto();
+		testObjectDto.setTestObjectType(wfsTestObjecType);
+		testObjectDto.addResource(new ResourceDto("Cite 2013 WF", url));
+		testObjectDto.setDescription("none");
+		testObjectDto.setVersionFromStr("1.0.0");
+		testObjectDto.setCreationDate(new Date(0));
+		testObjectDto.setAuthor("ii");
+		testObjectDto.setRemoteResource(URI.create("http://none"));
+		testObjectDto.setItemHash(new byte[]{'0'});
+		testObjectDto.setLocalPath("/none");
+		try {
+			((WriteDao) SuiTestUtils.DATA_STORAGE.getDao(TestObjectDto.class)).delete(testObjectDto.getId());
+		} catch (Exception e) {
+			ExcUtils.suppress(e);
+		}
+		((WriteDao) SuiTestUtils.DATA_STORAGE.getDao(TestObjectDto.class)).add(testObjectDto);
+
+		final ExecutableTestSuiteDto ets = SuiTestUtils.DATA_STORAGE.getDao(ExecutableTestSuiteDto.class).getById(
+				EidFactory.getDefault().createAndPreserveStr("d6907855-7e33-42d7-83f2-647780a6cfed")).getDto();
+
+		final TestTaskDto testTaskDto = new TestTaskDto();
+		testTaskDto.setId(EidFactory.getDefault().createAndPreserveStr("aa03825a-2f64-4e52-bdba-90a08adb80ce"));
+		testTaskDto.setExecutableTestSuite(ets);
+		testTaskDto.setTestObject(testObjectDto);
+
+		final TestRunDto testRunDto = new TestRunDto();
+		testRunDto.setDefaultLang("en");
+		testRunDto.setId(EidFactory.getDefault().createAndPreserveStr(SUI_TEST_DRIVER_EID));
+		testRunDto.setLabel("Run label");
+		testRunDto.setStartTimestamp(new Date(0));
+		testRunDto.addTestTask(testTaskDto);
+
+		return testRunDto;
+	}
+
+	@BeforeClass
+	public void setUp()
+			throws IOException, ConfigurationException, InvalidStateTransitionException,
+			InitializationException, ObjectWithIdNotFoundException, ComponentLoadingException, StorageException {
+
+		// DO NOT RUN THE TESTS IN THE IDE BUT WITH GRADLE
+
+		// Init logger
+		LoggerFactory.getLogger(this.getClass()).info("Started");
+
+		SuiTestUtils.ensureInitialization();
+		if (testDriverManager == null) {
+
+			final IFile tdDir = new IFile(PropertyUtils.getenvOrProperty(
+					"ETF_TD_DEPLOYMENT_DIR", "./build/tmp/td"));
+			tdDir.expectDirIsReadable();
+
+			testProjectDir = new IFile(PropertyUtils.getenvOrProperty(
+					"ETF_TESTING_SUI_TP_DIR", "./build/tmp/testProjects"));
+			testProjectDir.expectDirIsReadable();
+
+			// Load driver
+			testDriverManager = new DefaultTestDriverManager();
+			testDriverManager.getConfigurationProperties().setProperty(
+					EtfConstants.ETF_PROJECTS_DIR, testProjectDir.getAbsolutePath());
+			testDriverManager.getConfigurationProperties().setProperty(
+					EtfConstants.ETF_TESTDRIVERS_DIR, tdDir.getAbsolutePath());
+			final IFile attachmentDir = new IFile(PropertyUtils.getenvOrProperty(
+					"ETF_DS_DIR", "./build/tmp/etf-ds")).secureExpandPathDown("attachments");
+			attachmentDir.deleteDirectory();
+			attachmentDir.mkdirs();
+			testDriverManager.getConfigurationProperties().setProperty(
+					EtfConstants.ETF_ATTACHMENT_DIR, attachmentDir.getAbsolutePath());
+			testDriverManager.getConfigurationProperties().setProperty(
+					EtfConstants.ETF_DATA_STORAGE_NAME,
+					BsxDataStorage.class.getName());
+
+			testDriverManager.init();
+			testDriverManager.load(EidFactory.getDefault().createAndPreserveStr("4838e01b-4186-4d2d-a93a-414b9e9a49a7"));
+		}
+
+	}
+
+	@Test
+	public void simpleDemoWfs2ReportTest() throws Exception, ComponentNotLoadedException {
+
+		// DO NOT RUN THE TESTS IN THE IDE BUT DIRECTLY WITH GRADLE
+
+		// http://www.opengeospatial.org/resource/products/compliant
+		final String testUrl = "https://services.interactive-instruments.de/cite-xs-46/simpledemo/cgi-bin/cities-postgresql/wfs?request=GetCapabilities&service=wfs";
+
+		final TestRunDto testRunDto = createTestRunDtoForProject(testUrl);
+
+		final TestRun testRun = testDriverManager.createTestRun(testRunDto);
+		final TaskPoolRegistry<TestRunDto, TestRun> taskPoolRegistry = new TaskPoolRegistry<>(1, 1);
+		testRun.init();
+		taskPoolRegistry.submitTask(testRun);
+
+		final TestRunDto runResult = taskPoolRegistry.getTaskById(testRunDto.getId()).waitForResult();
+
+		assertNotNull(runResult);
+		assertNotNull(runResult.getTestTaskResults());
+		assertFalse(runResult.getTestTaskResults().isEmpty());
+
+		final TestTaskResultDto result = runResult.getTestTaskResults().get(0);
+
+		// Check correct order
+		assertEquals("Initialization and basic checks", result.getTestModuleResults().get(0).getResultedFrom().getLabel());
+		assertEquals("A - TS 2", result.getTestModuleResults().get(1).getResultedFrom().getLabel());
+		assertEquals("Z - TS 3", result.getTestModuleResults().get(2).getResultedFrom().getLabel());
+		assertEquals("B - TS 4", result.getTestModuleResults().get(3).getResultedFrom().getLabel());
+
+		// Check order of generated TestCases
+		assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(0));
+		assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(0).getTestStepResults().get(0));
+		assertEquals("Groovy Script", result.getTestModuleResults().get(3).getTestCaseResults().get(0).getTestStepResults()
+				.get(0).getResultedFrom().getLabel());
+
+		/*
+		assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(1));
+		assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(1).getTestStepResults().get(0));
+		assertEquals("HTTP Request 1 (disabled)", result.getTestModuleResults().get(3).getTestCaseResults().get(1).getTestStepResults().get(0).getResultedFrom().getLabel());
+		*/
+	}
+
+}

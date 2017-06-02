@@ -119,7 +119,7 @@ public class SuiTestDriver extends AbstractTestDriver {
 			final TestTaskResultDto testTaskResult = new TestTaskResultDto();
 			testTaskResult.setId(EidFactory.getDefault().createRandomId());
 			testTaskDto.setTestTaskResult(testTaskResult);
-			return new SuiTestTask(testTaskDto, dataStorageCallback);
+			return new SuiTestTask(testTaskDto);
 		} catch (IncompleteDtoException e) {
 			throw new TestTaskInitializationException(e);
 		}
