@@ -90,7 +90,7 @@ dependencies {
     integrationTest group: 'junit', name: 'junit', version: etf_junitTestVersion
     integrationTest group: 'de.interactive_instruments.etf.test', name: 'etf-sui-integration-test-resources', version: '1.0.1'+project.snapshotSuffix
     integrationTest group: 'de.interactive_instruments.etf', name: 'etf-stdtot', version: '1.0.0' + project.snapshotSuffix
-    integrationTest group: 'de.interactive_instruments.etf', name: 'etf-bsxds', version: '2.0.0' + project.snapshotSuffix
+    integrationTest group: 'de.interactive_instruments.etf.test', name: 'etf-unittest', version: '1.0.0' + project.snapshotSuffix
 }
 
 configurations {

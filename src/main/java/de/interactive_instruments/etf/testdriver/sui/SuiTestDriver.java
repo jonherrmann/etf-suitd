@@ -20,18 +20,14 @@ import static de.interactive_instruments.etf.sel.mapping.Types.SUI_SUPPORTED_TES
 import static de.interactive_instruments.etf.testdriver.sui.SuiTestDriver.SUI_TEST_DRIVER_EID;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.SoapUIExtensionClassLoader;
 
-import de.interactive_instruments.CLUtils;
 import de.interactive_instruments.IFile;
 import de.interactive_instruments.etf.EtfConstants;
 import de.interactive_instruments.etf.component.ComponentInfo;
@@ -43,17 +39,15 @@ import de.interactive_instruments.etf.dal.dto.capabilities.ComponentDto;
 import de.interactive_instruments.etf.dal.dto.capabilities.TestObjectTypeDto;
 import de.interactive_instruments.etf.dal.dto.result.TestTaskResultDto;
 import de.interactive_instruments.etf.dal.dto.run.TestTaskDto;
-import de.interactive_instruments.etf.dal.dto.test.ExecutableTestSuiteDto;
-import de.interactive_instruments.etf.model.DefaultEidSet;
 import de.interactive_instruments.etf.model.EID;
 import de.interactive_instruments.etf.model.EidFactory;
-import de.interactive_instruments.etf.model.EidSet;
-import de.interactive_instruments.etf.testdriver.*;
+import de.interactive_instruments.etf.testdriver.AbstractTestDriver;
+import de.interactive_instruments.etf.testdriver.ComponentInitializer;
+import de.interactive_instruments.etf.testdriver.TestTask;
+import de.interactive_instruments.etf.testdriver.TestTaskInitializationException;
 import de.interactive_instruments.exceptions.*;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 import de.interactive_instruments.properties.ConfigProperties;
-import de.interactive_instruments.properties.ConfigPropertyHolder;
-import de.interactive_instruments.xtf.SOAPUI_I;
 
 /**
  * SoapUI test driver component
@@ -198,6 +192,5 @@ public class SuiTestDriver extends AbstractTestDriver {
 	}
 
 	@Override
-	public void doRelease() {
-	}
+	public void doRelease() {}
 }

@@ -22,13 +22,7 @@ import java.util.List;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 
 import de.interactive_instruments.IFile;
-import de.interactive_instruments.etf.dal.dao.DataStorage;
-import de.interactive_instruments.etf.dal.dto.Dto;
-import de.interactive_instruments.etf.dal.dto.IncompleteDtoException;
-import de.interactive_instruments.etf.dal.dto.result.TestTaskResultDto;
 import de.interactive_instruments.etf.dal.dto.run.TestTaskDto;
-import de.interactive_instruments.etf.model.EID;
-import de.interactive_instruments.etf.model.EidFactory;
 import de.interactive_instruments.etf.testdriver.AbstractTestTask;
 import de.interactive_instruments.etf.testdriver.ExecutableTestSuiteUnavailable;
 import de.interactive_instruments.etf.testdriver.TestResultCollectorInjector;
@@ -64,7 +58,7 @@ class SuiTestTask extends AbstractTestTask {
 	@Override
 	protected void doInit() throws ConfigurationException, InitializationException {
 		try {
-			if(testTaskDto.getExecutableTestSuite().getLocalPath()==null) {
+			if (testTaskDto.getExecutableTestSuite().getLocalPath() == null) {
 				throw new InitializationException("Required property 'localPath' must be set!");
 			}
 			final IFile originalProjectFile = new IFile(testTaskDto.getExecutableTestSuite().getLocalPath());
@@ -112,7 +106,8 @@ class SuiTestTask extends AbstractTestTask {
 
 			wsdlProject = runner.initProject(getCollector());
 			if (wsdlProject.getActiveEnvironment() instanceof TestResultCollectorInjector) {
-				((TestResultCollectorInjector) wsdlProject.getActiveEnvironment()).setTestResultCollector(getPersistor().getResultCollector());
+				((TestResultCollectorInjector) wsdlProject.getActiveEnvironment())
+						.setTestResultCollector(getPersistor().getResultCollector());
 			}
 
 			getLogger().info("Project Properties: ");

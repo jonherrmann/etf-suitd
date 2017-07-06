@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,9 +28,6 @@ import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.model.project.ProjectFactoryRegistry;
 import com.eviware.soapui.support.SoapUIException;
 
-import de.interactive_instruments.etf.dal.dto.Dto;
-import de.interactive_instruments.etf.model.DefaultEidHolderMap;
-import de.interactive_instruments.etf.model.EidHolderMap;
 import org.apache.xmlbeans.XmlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +41,9 @@ import de.interactive_instruments.etf.dal.dto.capabilities.ComponentDto;
 import de.interactive_instruments.etf.dal.dto.capabilities.TagDto;
 import de.interactive_instruments.etf.dal.dto.test.ExecutableTestSuiteDto;
 import de.interactive_instruments.etf.dal.dto.translation.TranslationTemplateBundleDto;
+import de.interactive_instruments.etf.model.DefaultEidHolderMap;
 import de.interactive_instruments.etf.model.EidFactory;
+import de.interactive_instruments.etf.model.EidHolderMap;
 import de.interactive_instruments.etf.model.ParameterSet;
 import de.interactive_instruments.etf.sel.mapping.EtsMapper;
 import de.interactive_instruments.etf.testdriver.TypeBuildingFileVisitor;
@@ -83,7 +80,8 @@ class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTes
 				final StreamWriteDao<ExecutableTestSuiteDto> writeDao,
 				final Dao<TranslationTemplateBundleDto> translationTemplateBundleDao,
 				final Dao<TagDto> tagDao,
-				final EidHolderMap<ExecutableTestSuiteDto> testDriverEtsCrossDep) throws XmlException, IOException, SoapUIException {
+				final EidHolderMap<ExecutableTestSuiteDto> testDriverEtsCrossDep)
+				throws XmlException, IOException, SoapUIException {
 			super(path);
 			this.writeDao = writeDao;
 			this.translationTemplateBundleDao = translationTemplateBundleDao;
@@ -199,6 +197,5 @@ class SuiEtsBuilder implements TypeBuildingFileVisitor.TypeBuilder<ExecutableTes
 		}
 		return null;
 	}
-
 
 }

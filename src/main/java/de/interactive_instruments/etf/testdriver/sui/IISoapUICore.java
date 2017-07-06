@@ -17,18 +17,15 @@ package de.interactive_instruments.etf.testdriver.sui;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.GeneralSecurityException;
 import java.util.TimerTask;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
+import javax.swing.*;
 
-import com.eviware.soapui.*;
+import com.eviware.soapui.DefaultSoapUICore;
+import com.eviware.soapui.SoapUI;
+import com.eviware.soapui.SoapUICore;
+import com.eviware.soapui.SoapUIExtensionClassLoader;
 import com.eviware.soapui.config.SoapuiSettingsDocumentConfig;
 import com.eviware.soapui.impl.settings.XmlBeansSettingsImpl;
 import com.eviware.soapui.impl.wsdl.support.http.HttpClientSupport;
@@ -36,12 +33,10 @@ import com.eviware.soapui.impl.wsdl.support.soap.SoapVersion;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansionUtils;
 import com.eviware.soapui.model.settings.Settings;
 import com.eviware.soapui.monitor.MockEngine;
-import com.eviware.soapui.plugins.PluginManager;
 import com.eviware.soapui.security.registry.SecurityScanRegistry;
 import com.eviware.soapui.settings.*;
 import com.eviware.soapui.support.SecurityScanUtil;
 import com.eviware.soapui.support.StringUtils;
-import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.action.SoapUIActionRegistry;
 import com.eviware.soapui.support.factory.SoapUIFactoryRegistry;
 import com.eviware.soapui.support.listener.SoapUIListenerRegistry;
@@ -49,8 +44,6 @@ import com.eviware.soapui.support.types.StringList;
 
 import org.apache.commons.ssl.OpenSSL;
 import org.slf4j.Logger;
-
-import de.interactive_instruments.etf.sel.Utils;
 
 /**
  * Initializes core objects. Adapter for the SoapUICore based on the

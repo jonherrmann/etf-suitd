@@ -28,11 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.interactive_instruments.IFile;
+import de.interactive_instruments.SUtils;
 import de.interactive_instruments.etf.EtfConstants;
 import de.interactive_instruments.etf.component.ComponentLoadingException;
 import de.interactive_instruments.etf.component.ComponentNotLoadedException;
 import de.interactive_instruments.etf.dal.dao.WriteDao;
-import de.interactive_instruments.etf.dal.dao.basex.BsxDataStorage;
 import de.interactive_instruments.etf.dal.dto.capabilities.ResourceDto;
 import de.interactive_instruments.etf.dal.dto.capabilities.TestObjectDto;
 import de.interactive_instruments.etf.dal.dto.capabilities.TestObjectTypeDto;
@@ -41,6 +41,7 @@ import de.interactive_instruments.etf.dal.dto.run.TestRunDto;
 import de.interactive_instruments.etf.dal.dto.run.TestTaskDto;
 import de.interactive_instruments.etf.dal.dto.test.ExecutableTestSuiteDto;
 import de.interactive_instruments.etf.model.EidFactory;
+import de.interactive_instruments.etf.test.DataStorageTestUtils;
 import de.interactive_instruments.etf.testdriver.DefaultTestDriverManager;
 import de.interactive_instruments.etf.testdriver.TaskPoolRegistry;
 import de.interactive_instruments.etf.testdriver.TestDriverManager;
@@ -58,8 +59,8 @@ public class SuiTestRunTaskFactoryTest {
 
 	// DO NOT RUN THE TESTS IN THE IDE BUT WITH GRADLE
 
-	private TestDriverManager testDriverManager = null;
-	private IFile testProjectDir = null;
+	private static TestDriverManager testDriverManager = null;
+	private static IFile testProjectDir = null;
 
 	private TestRunDto createTestRunDtoForProject(final String url)
 			throws ComponentNotLoadedException, ConfigurationException, URISyntaxException,
@@ -68,25 +69,25 @@ public class SuiTestRunTaskFactoryTest {
 		final TestObjectDto testObjectDto = new TestObjectDto();
 		testObjectDto.setId(EidFactory.getDefault().createAndPreserveStr("fcfe9677-7b77-41dd-a17c-56884f60824f"));
 		testObjectDto.setLabel("Cite 2013 WFS");
-		final TestObjectTypeDto wfsTestObjecType = SuiTestUtils.DATA_STORAGE.getDao(TestObjectTypeDto.class).getById(
+		final TestObjectTypeDto wfsTestObjecType = DataStorageTestUtils.DATA_STORAGE.getDao(TestObjectTypeDto.class).getById(
 				EidFactory.getDefault().createAndPreserveStr("9b6ef734-981e-4d60-aa81-d6730a1c6389")).getDto();
 		testObjectDto.setTestObjectType(wfsTestObjecType);
-		testObjectDto.addResource(new ResourceDto("Cite 2013 WF", url));
+		testObjectDto.addResource(new ResourceDto("serviceEndpoint", url));
 		testObjectDto.setDescription("none");
 		testObjectDto.setVersionFromStr("1.0.0");
 		testObjectDto.setCreationDate(new Date(0));
 		testObjectDto.setAuthor("ii");
-		testObjectDto.setRemoteResource(URI.create("http://none"));
-		testObjectDto.setItemHash(new byte[]{'0'});
+		testObjectDto.setItemHash(SUtils.fastCalcHashAsHexStr(testObjectDto.getLabel()));
 		testObjectDto.setLocalPath("/none");
+		testObjectDto.setRemoteResource(new URI("http://nosource"));
 		try {
-			((WriteDao) SuiTestUtils.DATA_STORAGE.getDao(TestObjectDto.class)).delete(testObjectDto.getId());
+			((WriteDao) DataStorageTestUtils.DATA_STORAGE.getDao(TestObjectDto.class)).delete(testObjectDto.getId());
 		} catch (Exception e) {
 			ExcUtils.suppress(e);
 		}
-		((WriteDao) SuiTestUtils.DATA_STORAGE.getDao(TestObjectDto.class)).add(testObjectDto);
+		((WriteDao) DataStorageTestUtils.DATA_STORAGE.getDao(TestObjectDto.class)).add(testObjectDto);
 
-		final ExecutableTestSuiteDto ets = SuiTestUtils.DATA_STORAGE.getDao(ExecutableTestSuiteDto.class).getById(
+		final ExecutableTestSuiteDto ets = DataStorageTestUtils.DATA_STORAGE.getDao(ExecutableTestSuiteDto.class).getById(
 				EidFactory.getDefault().createAndPreserveStr("d6907855-7e33-42d7-83f2-647780a6cfed")).getDto();
 
 		final TestTaskDto testTaskDto = new TestTaskDto();
@@ -105,24 +106,26 @@ public class SuiTestRunTaskFactoryTest {
 	}
 
 	@BeforeClass
-	public void setUp()
+	public static void setUp()
 			throws IOException, ConfigurationException, InvalidStateTransitionException,
-			InitializationException, ObjectWithIdNotFoundException, ComponentLoadingException, StorageException {
+			InitializationException, ObjectWithIdNotFoundException {
 
 		// DO NOT RUN THE TESTS IN THE IDE BUT WITH GRADLE
 
 		// Init logger
-		LoggerFactory.getLogger(this.getClass()).info("Started");
+		LoggerFactory.getLogger(SuiTestRunTaskFactoryTest.class).info("Started");
 
-		SuiTestUtils.ensureInitialization();
+		DataStorageTestUtils.ensureInitialization();
 		if (testDriverManager == null) {
 
 			final IFile tdDir = new IFile(PropertyUtils.getenvOrProperty(
 					"ETF_TD_DEPLOYMENT_DIR", "./build/tmp/td"));
+			tdDir.mkdirs();
 			tdDir.expectDirIsReadable();
 
 			testProjectDir = new IFile(PropertyUtils.getenvOrProperty(
 					"ETF_TESTING_SUI_TP_DIR", "./build/tmp/testProjects"));
+			testProjectDir.mkdirs();
 			testProjectDir.expectDirIsReadable();
 
 			// Load driver
@@ -139,12 +142,11 @@ public class SuiTestRunTaskFactoryTest {
 					EtfConstants.ETF_ATTACHMENT_DIR, attachmentDir.getAbsolutePath());
 			testDriverManager.getConfigurationProperties().setProperty(
 					EtfConstants.ETF_DATA_STORAGE_NAME,
-					BsxDataStorage.class.getName());
+					DataStorageTestUtils.DATA_STORAGE.getClass().getName());
 
 			testDriverManager.init();
 			testDriverManager.load(EidFactory.getDefault().createAndPreserveStr("4838e01b-4186-4d2d-a93a-414b9e9a49a7"));
 		}
-
 	}
 
 	@Test

@@ -15,29 +15,18 @@
  */
 package de.interactive_instruments.etf.testdriver.sui;
 
-import static de.interactive_instruments.etf.sel.mapping.Types.SUI_SUPPORTED_TEST_OBJECT_TYPES;
 import static de.interactive_instruments.etf.sel.mapping.Types.TEST_ITEM_TYPES;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
 
 import de.interactive_instruments.etf.EtfConstants;
 import de.interactive_instruments.etf.dal.dao.DataStorage;
 import de.interactive_instruments.etf.dal.dao.WriteDao;
-import de.interactive_instruments.etf.dal.dto.Dto;
 import de.interactive_instruments.etf.dal.dto.capabilities.TagDto;
-import de.interactive_instruments.etf.dal.dto.capabilities.TestObjectTypeDto;
 import de.interactive_instruments.etf.dal.dto.test.ExecutableTestSuiteDto;
 import de.interactive_instruments.etf.dal.dto.test.TestItemTypeDto;
 import de.interactive_instruments.etf.dal.dto.translation.TranslationTemplateBundleDto;
-import de.interactive_instruments.etf.model.*;
 import de.interactive_instruments.etf.testdriver.AbstractEtsFileTypeLoader;
-import de.interactive_instruments.etf.testdriver.EtsTypeLoader;
-import de.interactive_instruments.etf.testdriver.ExecutableTestSuiteLifeCycleListener;
-import de.interactive_instruments.etf.testdriver.TypeBuildingFileVisitor;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.InitializationException;
 import de.interactive_instruments.exceptions.InvalidStateTransitionException;
