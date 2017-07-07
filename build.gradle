@@ -130,12 +130,14 @@ jar {
     }
 }
 
-task copyTdToTdDir(dependsOn: jar) << {
-    copy {
-        from jar
-        into "$testDataDir"
+task copyTdToTdDir(dependsOn: jar) {
+    doLast {
+        copy {
+            from jar
+            into "$testDataDir"
+        }
+        println "Copied test driver to $testDataDir"
     }
-    println "Copied test driver to $testDataDir"
 }
 
 install {
@@ -145,12 +147,14 @@ install {
 // INTEGRATION TESTS
 ///////////////////////////////////////////////////////////////////////////////////////
 
-task extractIntegrationTestProjects << {
-    copy {
-        def jar = configurations.testCompile.filter { it.name.startsWith('etf-sui-integration-test-resources') }
-        from jar.collect { zipTree(it) }
-        into "$suiTestTpDir"
-        include 'sui/**'
+task extractIntegrationTestProjects {
+    doLast {
+        copy {
+            def jar = configurations.testCompile.filter { it.name.startsWith('etf-sui-integration-test-resources') }
+            from jar.collect { zipTree(it) }
+            into "$suiTestTpDir"
+            include 'sui/**'
+        }
     }
 }
 
