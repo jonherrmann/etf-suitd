@@ -63,8 +63,8 @@ class SuiTestTask extends AbstractTestTask {
 			}
 			final IFile originalProjectFile = new IFile(testTaskDto.getExecutableTestSuite().getLocalPath());
 			originalProjectFile.expectFileIsReadable();
-			tmpProjectFile = originalProjectFile.createTempCopy(
-					testTaskDto.getExecutableTestSuite().getLabel() + "_ets", "etf");
+			tmpProjectFile = originalProjectFile.createTempCopy(IFile.sanitize(
+					testTaskDto.getExecutableTestSuite().getLabel()) + "_ets", "etf");
 			tmpProjectFile.expectIsReadAndWritable();
 
 			// Set Soapui project Properties
