@@ -39,6 +39,16 @@ ext.testDataStorageDir = project.hasProperty('etf.ds.dir') ?
         project.file('./build/tmp/etf-ds').absolutePath
 
 repositories {
+
+    /*
+    Bug in gradle ?
+
+    https://github.com/gradle/gradle/issues/1811
+
+    Could not resolve all files for configuration ':compileClasspath'.
+        > Could not download etf-sui-plugin-plugin.jar (de.interactive_instruments.etf.suim:etf-sui-plugin:2.0.0-SNAPSHOT): No cached version available for offline mode
+    */
+
 	mavenLocal()
 }
 
