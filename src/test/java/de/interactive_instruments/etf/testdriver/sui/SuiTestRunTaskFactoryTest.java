@@ -64,7 +64,7 @@ public class SuiTestRunTaskFactoryTest {
 
 	private TestRunDto createTestRunDtoForProject(final String url)
 			throws ComponentNotLoadedException, ConfigurationException, URISyntaxException,
-			StorageException, ObjectWithIdNotFoundException, IOException {
+			ObjectWithIdNotFoundException, IOException {
 
 		final TestObjectDto testObjectDto = new TestObjectDto();
 		testObjectDto.setId(EidFactory.getDefault().createAndPreserveStr("fcfe9677-7b77-41dd-a17c-56884f60824f"));
@@ -171,6 +171,9 @@ public class SuiTestRunTaskFactoryTest {
 		assertFalse(runResult.getTestTaskResults().isEmpty());
 
 		final TestTaskResultDto result = runResult.getTestTaskResults().get(0);
+		assertNotNull(result);
+		assertNotNull(result.getTestModuleResults());
+		assertNotNull(result.getTestModuleResults().get(0).getResultedFrom());
 
 		// Check correct order
 		assertEquals("Initialization and basic checks", result.getTestModuleResults().get(0).getResultedFrom().getLabel());
