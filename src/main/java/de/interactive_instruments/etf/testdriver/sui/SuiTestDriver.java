@@ -19,6 +19,7 @@
  */
 package de.interactive_instruments.etf.testdriver.sui;
 
+import static com.eviware.soapui.settings.HttpSettings.ENCODED_URLS;
 import static de.interactive_instruments.etf.EtfConstants.ETF_DATA_STORAGE_NAME;
 import static de.interactive_instruments.etf.sel.mapping.Types.SUI_SUPPORTED_TEST_OBJECT_TYPES;
 import static de.interactive_instruments.etf.testdriver.sui.SuiTestDriver.SUI_TEST_DRIVER_EID;
@@ -133,6 +134,9 @@ public class SuiTestDriver extends AbstractTestDriver {
 		}
 
 		SoapUI.setSoapUICore(IISoapUICore.createDefault(), true);
+
+		// Don't let SoapUI re-encode the URLs
+		SoapUI.getSettings().setBoolean(ENCODED_URLS, true);
 
 		propagateComponents();
 
