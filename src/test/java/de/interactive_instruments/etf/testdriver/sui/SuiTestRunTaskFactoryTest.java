@@ -27,6 +27,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
+import de.interactive_instruments.etf.dal.dao.DataStorage;
+import de.interactive_instruments.etf.dal.dao.DataStorageRegistry;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,7 @@ public class SuiTestRunTaskFactoryTest {
 
 	private static TestDriverManager testDriverManager = null;
 	private static IFile testProjectDir = null;
+	private static DataStorage DATA_STORAGE = DataStorageTestUtils.inMemoryStorage();
 
 	private TestRunDto createTestRunDtoForProject(final String url)
 			throws ComponentNotLoadedException, ConfigurationException, URISyntaxException,
@@ -73,7 +76,7 @@ public class SuiTestRunTaskFactoryTest {
 		final TestObjectDto testObjectDto = new TestObjectDto();
 		testObjectDto.setId(EidFactory.getDefault().createAndPreserveStr("fcfe9677-7b77-41dd-a17c-56884f60824f"));
 		testObjectDto.setLabel("Cite 2013 WFS");
-		final TestObjectTypeDto wfsTestObjecType = DataStorageTestUtils.DATA_STORAGE.getDao(TestObjectTypeDto.class).getById(
+		final TestObjectTypeDto wfsTestObjecType = DATA_STORAGE.getDao(TestObjectTypeDto.class).getById(
 				EidFactory.getDefault().createAndPreserveStr("9b6ef734-981e-4d60-aa81-d6730a1c6389")).getDto();
 		testObjectDto.setTestObjectType(wfsTestObjecType);
 		testObjectDto.addResource(new ResourceDto("serviceEndpoint", url));
@@ -85,13 +88,13 @@ public class SuiTestRunTaskFactoryTest {
 		testObjectDto.setLocalPath("/none");
 		testObjectDto.setRemoteResource(new URI("http://nosource"));
 		try {
-			((WriteDao) DataStorageTestUtils.DATA_STORAGE.getDao(TestObjectDto.class)).delete(testObjectDto.getId());
+			((WriteDao) DATA_STORAGE.getDao(TestObjectDto.class)).delete(testObjectDto.getId());
 		} catch (Exception e) {
 			ExcUtils.suppress(e);
 		}
-		((WriteDao) DataStorageTestUtils.DATA_STORAGE.getDao(TestObjectDto.class)).add(testObjectDto);
+		((WriteDao) DATA_STORAGE.getDao(TestObjectDto.class)).add(testObjectDto);
 
-		final ExecutableTestSuiteDto ets = DataStorageTestUtils.DATA_STORAGE.getDao(ExecutableTestSuiteDto.class).getById(
+		final ExecutableTestSuiteDto ets = DATA_STORAGE.getDao(ExecutableTestSuiteDto.class).getById(
 				EidFactory.getDefault().createAndPreserveStr("d6907855-7e33-42d7-83f2-647780a6cfed")).getDto();
 
 		final TestTaskDto testTaskDto = new TestTaskDto();
@@ -119,7 +122,10 @@ public class SuiTestRunTaskFactoryTest {
 		// Init logger
 		LoggerFactory.getLogger(SuiTestRunTaskFactoryTest.class).info("Started");
 
-		DataStorageTestUtils.ensureInitialization();
+		if(DataStorageRegistry.instance().get(DATA_STORAGE.getClass().getName())==null) {
+			DataStorageRegistry.instance().register(DATA_STORAGE);
+		}
+
 		if (testDriverManager == null) {
 
 			final IFile tdDir = new IFile(PropertyUtils.getenvOrProperty(
@@ -146,7 +152,7 @@ public class SuiTestRunTaskFactoryTest {
 					EtfConstants.ETF_ATTACHMENT_DIR, attachmentDir.getAbsolutePath());
 			testDriverManager.getConfigurationProperties().setProperty(
 					EtfConstants.ETF_DATA_STORAGE_NAME,
-					DataStorageTestUtils.DATA_STORAGE.getClass().getName());
+					DATA_STORAGE.getClass().getName());
 
 			testDriverManager.init();
 			testDriverManager.load(EidFactory.getDefault().createAndPreserveStr("4838e01b-4186-4d2d-a93a-414b9e9a49a7"));
