@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -27,8 +27,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-import de.interactive_instruments.etf.dal.dao.DataStorage;
-import de.interactive_instruments.etf.dal.dao.DataStorageRegistry;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +36,8 @@ import de.interactive_instruments.SUtils;
 import de.interactive_instruments.etf.EtfConstants;
 import de.interactive_instruments.etf.component.ComponentLoadingException;
 import de.interactive_instruments.etf.component.ComponentNotLoadedException;
+import de.interactive_instruments.etf.dal.dao.DataStorage;
+import de.interactive_instruments.etf.dal.dao.DataStorageRegistry;
 import de.interactive_instruments.etf.dal.dao.WriteDao;
 import de.interactive_instruments.etf.dal.dto.capabilities.ResourceDto;
 import de.interactive_instruments.etf.dal.dto.capabilities.TestObjectDto;
@@ -122,7 +122,7 @@ public class SuiTestRunTaskFactoryTest {
 		// Init logger
 		LoggerFactory.getLogger(SuiTestRunTaskFactoryTest.class).info("Started");
 
-		if(DataStorageRegistry.instance().get(DATA_STORAGE.getClass().getName())==null) {
+		if (DataStorageRegistry.instance().get(DATA_STORAGE.getClass().getName()) == null) {
 			DataStorageRegistry.instance().register(DATA_STORAGE);
 		}
 
