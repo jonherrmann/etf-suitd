@@ -5,4 +5,4 @@
 build
 *.log
 
-dependencies.txt
+/build-dependencies.txt
