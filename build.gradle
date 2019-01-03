@@ -29,15 +29,11 @@ group = 'de.interactive_instruments.etf.testdriver'
 description = "ETF SoapUI test runner"
 
 
-ext.testDataDir = project.hasProperty('etf.td.deployment.dir') ?
-        project.getProperty('etf.td.deployment.dir') :
-        project.file('./build/tmp/td').absolutePath
+ext.testDataDir = project.file('./build/tmp/td').absolutePath
 
 ext.suiTestTpDir = project.file('./build/tmp/testProjects')
 
-ext.testDataStorageDir = project.hasProperty('etf.ds.dir') ?
-        project.getProperty('etf.ds.dir') :
-        project.file('./build/tmp/etf-ds').absolutePath
+ext.testDataStorageDir = project.file('./build/tmp/etf-ds').absolutePath
 
 repositories {
 

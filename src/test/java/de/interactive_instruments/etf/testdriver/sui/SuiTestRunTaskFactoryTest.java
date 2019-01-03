@@ -196,12 +196,6 @@ public class SuiTestRunTaskFactoryTest {
 		assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(0).getTestStepResults().get(0));
 		assertEquals("Groovy Script", result.getTestModuleResults().get(3).getTestCaseResults().get(0).getTestStepResults()
 				.get(0).getResultedFrom().getLabel());
-
-		/*
-		assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(1));
-		assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(1).getTestStepResults().get(0));
-		assertEquals("HTTP Request 1 (disabled)", result.getTestModuleResults().get(3).getTestCaseResults().get(1).getTestStepResults().get(0).getResultedFrom().getLabel());
-		*/
 	}
 
 }
