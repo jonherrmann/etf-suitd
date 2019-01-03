@@ -13,7 +13,7 @@ before_script:
 - export TZ=Europe/Berlin
 script:
 - "./gradlew init"
-- "./gradlew test jacocoTestReport"
+- "./gradlew -Dorg.gradle.project.ii.etfdev.quality.reports=true test jacocoTestReport"
 before_install:
 - wget -O ~/codacy-coverage-reporter-assembly.jar https://repo.jenkins-ci.org/public/com/codacy/codacy-coverage-reporter/5.0.310/codacy-coverage-reporter-5.0.310-assembly.jar
 after_success:
