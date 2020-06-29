@@ -33,6 +33,7 @@ import de.interactive_instruments.etf.testdriver.TestResultCollectorInjector;
 import de.interactive_instruments.exceptions.InitializationException;
 import de.interactive_instruments.exceptions.InvalidStateTransitionException;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
+import de.interactive_instruments.properties.ConfigPropertyHolder;
 
 /**
  * BaseX test run task for executing XQuery on a BaseX database.
@@ -41,108 +42,116 @@ import de.interactive_instruments.exceptions.config.ConfigurationException;
  */
 class SuiTestTask extends AbstractTestTask {
 
-	private WsdlProject wsdlProject = null;
-	private STestCaseRunner runner = null;
-	private IFile tmpProjectFile;
+    private WsdlProject wsdlProject = null;
+    private STestCaseRunner runner = null;
+    private IFile tmpProjectFile;
+    private final ConfigPropertyHolder config;
 
-	/**
-	 * Default constructor.
-	 *
-	 * @throws IOException I/O error
-	 */
-	public SuiTestTask(final TestTaskDto testTaskDto) {
-		super(testTaskDto, new SuiTestTaskProgress(), SuiTestTask.class.getClassLoader());
-	}
+    /**
+     * Default constructor.
+     *
+     * @throws IOException
+     *             I/O error
+     */
+    public SuiTestTask(final TestTaskDto testTaskDto, final ConfigPropertyHolder config) {
+        super(testTaskDto, new SuiTestTaskProgress(), SuiTestTask.class.getClassLoader());
+        this.config = config;
+    }
 
-	@Override
-	protected void doRun() throws Exception {
-		runner.runRunner();
-	}
+    @Override
+    protected void doRun() throws Exception {
+        runner.runRunner();
+    }
 
-	@Override
-	protected void doInit() throws ConfigurationException, InitializationException {
-		try {
-			if (testTaskDto.getExecutableTestSuite().getLocalPath() == null) {
-				throw new InitializationException("Required property 'localPath' must be set!");
-			}
-			final IFile originalProjectFile = new IFile(testTaskDto.getExecutableTestSuite().getLocalPath());
-			originalProjectFile.expectFileIsReadable();
-			tmpProjectFile = originalProjectFile.createTempCopy(IFile.sanitize(
-					testTaskDto.getExecutableTestSuite().getLabel()) + "_ets", "etf");
-			tmpProjectFile.expectIsReadAndWritable();
+    @Override
+    protected void doInit() throws ConfigurationException, InitializationException {
+        try {
+            if (testTaskDto.getExecutableTestSuite().getLocalPath() == null) {
+                throw new InitializationException("Required property 'localPath' must be set!");
+            }
+            final IFile originalProjectFile = new IFile(testTaskDto.getExecutableTestSuite().getLocalPath());
+            originalProjectFile.expectFileIsReadable();
+            tmpProjectFile = originalProjectFile.createTempCopy(IFile.sanitize(
+                    testTaskDto.getExecutableTestSuite().getLabel()) + "_ets", "etf");
+            tmpProjectFile.expectIsReadAndWritable();
 
-			// Set Soapui project Properties
-			final List<String> properties = new ArrayList<String>();
+            // Set Soapui project Properties
+            final List<String> properties = new ArrayList<String>();
 
-			testTaskDto.getArguments().values().entrySet().stream().filter(kvp -> kvp.getKey() != null).forEach(kvp -> {
-				properties.add(kvp.getKey());
-				properties.add(kvp.getValue());
-			});
+            testTaskDto.getArguments().values().entrySet().stream().filter(kvp -> kvp.getKey() != null).forEach(kvp -> {
+                properties.add(kvp.getKey());
+                properties.add(kvp.getValue());
+            });
 
-			// Set test object resources
-			testTaskDto.getTestObject().getResources().entrySet().forEach(r -> {
-				properties.add(r.getKey());
-				properties.add(r.getValue().getUri().toString());
-			});
+            // Set test object resources
+            testTaskDto.getTestObject().getResources().entrySet().forEach(r -> {
+                properties.add(r.getKey());
+                properties.add(r.getValue().getUri().toString());
+            });
 
-			properties.add("username");
-			properties.add(testTaskDto.getTestObject().properties().getPropertyOrDefault("username", ""));
-			properties.add("password");
-			properties.add(testTaskDto.getTestObject().properties().getPropertyOrDefault("password", ""));
-			properties.add("authUser");
-			properties.add(testTaskDto.getTestObject().properties().getPropertyOrDefault("username", ""));
-			properties.add("authPwd");
-			properties.add(testTaskDto.getTestObject().properties().getPropertyOrDefault("password", ""));
-			properties.add("authMethod");
-			properties.add("basic");
+            properties.add("username");
+            properties.add(testTaskDto.getTestObject().properties().getPropertyOrDefault("username", ""));
+            properties.add("password");
+            properties.add(testTaskDto.getTestObject().properties().getPropertyOrDefault("password", ""));
+            properties.add("authUser");
+            properties.add(testTaskDto.getTestObject().properties().getPropertyOrDefault("username", ""));
+            properties.add("authPwd");
+            properties.add(testTaskDto.getTestObject().properties().getPropertyOrDefault("password", ""));
+            properties.add("authMethod");
+            properties.add("basic");
 
-			// Run Functional Tests ( also for generating Request for LoadTests )
-			runner = new STestCaseRunner((SuiTestTaskProgress) progress);
-			runner.setProjectProperties(properties.toArray(new String[properties.size()]));
+            // Run Functional Tests ( also for generating Request for LoadTests )
+            runner = new STestCaseRunner((SuiTestTaskProgress) progress);
+            runner.setProjectProperties(properties.toArray(new String[properties.size()]));
 
-			// Deactivate UI funtions
-			runner.setEnableUI(false);
+            // Deactivate UI funtions
+            runner.setEnableUI(false);
 
-			// Set project file
-			runner.setProjectFile(tmpProjectFile.getAbsolutePath());
+            // Set project file
+            runner.setProjectFile(tmpProjectFile.getAbsolutePath());
 
-			runner.setOutputFolder(getCollector().getTempDir().getAbsolutePath());
+            runner.setOutputFolder(getCollector().getTempDir().getAbsolutePath());
 
-			wsdlProject = runner.initProject(getCollector());
-			if (wsdlProject.getActiveEnvironment() instanceof TestResultCollectorInjector) {
-				((TestResultCollectorInjector) wsdlProject.getActiveEnvironment())
-						.setTestResultCollector(getPersistor().getResultCollector());
-			}
+            wsdlProject = runner.initProject(getCollector());
+            if (wsdlProject.getActiveEnvironment() instanceof TestResultCollectorInjector) {
+                ((TestResultCollectorInjector) wsdlProject.getActiveEnvironment())
+                        .setTestResultCollector(getPersistor().getResultCollector());
+            }
 
-			getLogger().info("Project Properties: ");
-			final String[] outProps = runner.getProjectProperties();
-			for (int i = 0; i < runner.getProjectProperties().length; i += 2) {
-				final String key = outProps[i];
-				final String val = outProps[i + 1];
-				if (!"authPwd".equals(key) && !"password".equals(key)) {
-					getLogger().info("{} - {} ", key, val);
-				}
-			}
+            getLogger().info("Project Properties: ");
+            final String[] outProps = runner.getProjectProperties();
+            final String showUsername = config.getPropertyOrDefault("etf.show.username", "false");
+            for (int i = 0; i < runner.getProjectProperties().length; i += 2) {
+                final String key = outProps[i];
+                final String val = outProps[i + 1];
+                if (!"authPwd".equals(key) && !"password".equals(key)) {
+                    if (!("false".equals(showUsername) && ("username".equals(key) || "authUser".equals(key)))) {
+                        getLogger().info("{} - {} ", key, val);
+                    } else {
+                        getLogger().info("[Hiding {} property]", key);
+                    }
+                }
+            }
 
-		} catch (Exception e) {
-			throw new ExecutableTestSuiteUnavailable(testTaskDto.getExecutableTestSuite(), e);
-		}
-	}
+        } catch (Exception e) {
+            throw new ExecutableTestSuiteUnavailable(testTaskDto.getExecutableTestSuite(), e);
+        }
+    }
 
-	@Override
-	public void doRelease() {
-		if (wsdlProject != null) {
-			if (wsdlProject.getActiveEnvironment() != null) {
-				wsdlProject.getActiveEnvironment().release();
-			}
-			wsdlProject.release();
-		}
-	}
+    @Override
+    public void doRelease() {
+        if (wsdlProject != null) {
+            if (wsdlProject.getActiveEnvironment() != null) {
+                wsdlProject.getActiveEnvironment().release();
+            }
+            wsdlProject.release();
+        }
+    }
 
-	@Override
-	protected void doCancel() throws InvalidStateTransitionException {
-		if (runner != null) {
-			runner.cancel();
-		}
-	}
+    @Override
+    protected void doCancel() throws InvalidStateTransitionException {
+        if (runner != null) {
+            runner.cancel();
+        }
+    }
 }

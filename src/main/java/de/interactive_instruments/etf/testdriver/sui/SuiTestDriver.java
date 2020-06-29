@@ -62,143 +62,143 @@ import de.interactive_instruments.properties.ConfigProperties;
 @ComponentInitializer(id = SUI_TEST_DRIVER_EID)
 public class SuiTestDriver extends AbstractTestDriver {
 
-	public static final String SUI_TEST_DRIVER_EID = "4838e01b-4186-4d2d-a93a-414b9e9a49a7";
-	private DataStorage dataStorageCallback;
-	private boolean pluginsInitialized = false;
+    public static final String SUI_TEST_DRIVER_EID = "4838e01b-4186-4d2d-a93a-414b9e9a49a7";
+    private DataStorage dataStorageCallback;
+    private boolean pluginsInitialized = false;
 
-	final static ComponentInfo COMPONENT_INFO = new ComponentInfo() {
-		@Override
-		public String getName() {
-			return "SoapUI test driver";
-		}
+    final static ComponentInfo COMPONENT_INFO = new ComponentInfo() {
+        @Override
+        public String getName() {
+            return "SoapUI test driver";
+        }
 
-		@Override
-		public EID getId() {
-			return EidFactory.getDefault().createAndPreserveStr(SUI_TEST_DRIVER_EID);
-		}
+        @Override
+        public EID getId() {
+            return EidFactory.getDefault().createAndPreserveStr(SUI_TEST_DRIVER_EID);
+        }
 
-		@Override
-		public String getVersion() {
-			return this.getClass().getPackage().getImplementationVersion();
-		}
+        @Override
+        public String getVersion() {
+            return this.getClass().getPackage().getImplementationVersion();
+        }
 
-		@Override
-		public String getVendor() {
-			return this.getClass().getPackage().getImplementationVendor();
-		}
+        @Override
+        public String getVendor() {
+            return this.getClass().getPackage().getImplementationVendor();
+        }
 
-		@Override
-		public String getDescription() {
-			return "Test driver for SoapUI " + SoapUI.class.getPackage().getImplementationVersion();
-		}
-	};
+        @Override
+        public String getDescription() {
+            return "Test driver for SoapUI " + SoapUI.class.getPackage().getImplementationVersion();
+        }
+    };
 
-	public SuiTestDriver() {
-		super(new ConfigProperties(EtfConstants.ETF_PROJECTS_DIR));
-	}
+    public SuiTestDriver() {
+        super(new ConfigProperties(EtfConstants.ETF_PROJECTS_DIR));
+    }
 
-	@Override
-	public Collection<TestObjectTypeDto> getTestObjectTypes() {
-		return SUI_SUPPORTED_TEST_OBJECT_TYPES.values();
-	}
+    @Override
+    public Collection<TestObjectTypeDto> getTestObjectTypes() {
+        return SUI_SUPPORTED_TEST_OBJECT_TYPES.values();
+    }
 
-	@Override
-	final public ComponentInfo getInfo() {
-		return COMPONENT_INFO;
-	}
+    @Override
+    final public ComponentInfo getInfo() {
+        return COMPONENT_INFO;
+    }
 
-	@Override
-	public TestTask createTestTask(final TestTaskDto testTaskDto) throws TestTaskInitializationException {
-		try {
-			Objects.requireNonNull(testTaskDto, "Test Task not set").ensureBasicValidity();
+    @Override
+    public TestTask createTestTask(final TestTaskDto testTaskDto) throws TestTaskInitializationException {
+        try {
+            Objects.requireNonNull(testTaskDto, "Test Task not set").ensureBasicValidity();
 
-			// Get ETS
-			testTaskDto.getTestObject().ensureBasicValidity();
-			testTaskDto.getExecutableTestSuite().ensureBasicValidity();
-			final TestTaskResultDto testTaskResult = new TestTaskResultDto();
-			testTaskResult.setId(EidFactory.getDefault().createRandomId());
-			testTaskDto.setTestTaskResult(testTaskResult);
-			return new SuiTestTask(testTaskDto);
-		} catch (IncompleteDtoException e) {
-			throw new TestTaskInitializationException(e);
-		}
+            // Get ETS
+            testTaskDto.getTestObject().ensureBasicValidity();
+            testTaskDto.getExecutableTestSuite().ensureBasicValidity();
+            final TestTaskResultDto testTaskResult = new TestTaskResultDto();
+            testTaskResult.setId(EidFactory.getDefault().createRandomId());
+            testTaskDto.setTestTaskResult(testTaskResult);
+            return new SuiTestTask(testTaskDto, configProperties);
+        } catch (IncompleteDtoException e) {
+            throw new TestTaskInitializationException(e);
+        }
 
-	}
+    }
 
-	@Override
-	final public void doInit()
-			throws ConfigurationException, IllegalStateException, InitializationException, InvalidStateTransitionException {
-		dataStorageCallback = DataStorageRegistry.instance().get(configProperties.getProperty(ETF_DATA_STORAGE_NAME));
-		if (dataStorageCallback == null) {
-			throw new InvalidStateTransitionException("Data Storage not set");
-		}
+    @Override
+    final public void doInit()
+            throws ConfigurationException, IllegalStateException, InitializationException, InvalidStateTransitionException {
+        dataStorageCallback = DataStorageRegistry.instance().get(configProperties.getProperty(ETF_DATA_STORAGE_NAME));
+        if (dataStorageCallback == null) {
+            throw new InvalidStateTransitionException("Data Storage not set");
+        }
 
-		SoapUI.setSoapUICore(IISoapUICore.createDefault(), true);
+        SoapUI.setSoapUICore(IISoapUICore.createDefault(), true);
 
-		// Don't let SoapUI re-encode the URLs
-		SoapUI.getSettings().setBoolean(ENCODED_URLS, true);
+        // Don't let SoapUI re-encode the URLs
+        SoapUI.getSettings().setBoolean(ENCODED_URLS, true);
 
-		propagateComponents();
+        propagateComponents();
 
-		typeLoader = new SuiTypeLoader(dataStorageCallback);
-		typeLoader.getConfigurationProperties().setPropertiesFrom(configProperties, true);
-	}
+        typeLoader = new SuiTypeLoader(dataStorageCallback);
+        typeLoader.getConfigurationProperties().setPropertiesFrom(configProperties, true);
+    }
 
-	private void initPlugins(final IFile pluginDir) {
+    private void initPlugins(final IFile pluginDir) {
 
-		if (pluginsInitialized) {
-			return;
-		}
+        if (pluginsInitialized) {
+            return;
+        }
 
-		for (File pluginFile : pluginDir.listFiles()) {
-			if (!pluginFile.getName().toLowerCase().endsWith("-plugin.jar")) {
-				continue;
-			}
+        for (File pluginFile : pluginDir.listFiles()) {
+            if (!pluginFile.getName().toLowerCase().endsWith("-plugin.jar")) {
+                continue;
+            }
 
-			JarFile jarFile = null;
-			try {
-				if (SoapUI.getSoapUICore() == null) {
-					SoapUI.setSoapUICore(IISoapUICore.createDefault(), true);
-				}
-				SoapUIExtensionClassLoader extClassLoader = SoapUI.getSoapUICore().getExtensionClassLoader();
+            JarFile jarFile = null;
+            try {
+                if (SoapUI.getSoapUICore() == null) {
+                    SoapUI.setSoapUICore(IISoapUICore.createDefault(), true);
+                }
+                SoapUIExtensionClassLoader extClassLoader = SoapUI.getSoapUICore().getExtensionClassLoader();
 
-				// add jar to our extension classLoader
-				extClassLoader.addFile(pluginFile);
-				jarFile = new JarFile(pluginFile);
+                // add jar to our extension classLoader
+                extClassLoader.addFile(pluginFile);
+                jarFile = new JarFile(pluginFile);
 
-				// look for factories
-				JarEntry entry = jarFile.getJarEntry("META-INF/factories.xml");
-				if (entry != null)
-					SoapUI.getFactoryRegistry().addConfig(jarFile.getInputStream(entry), extClassLoader);
+                // look for factories
+                JarEntry entry = jarFile.getJarEntry("META-INF/factories.xml");
+                if (entry != null)
+                    SoapUI.getFactoryRegistry().addConfig(jarFile.getInputStream(entry), extClassLoader);
 
-				// look for listeners
-				entry = jarFile.getJarEntry("META-INF/listeners.xml");
-				if (entry != null)
-					SoapUI.getListenerRegistry().addConfig(jarFile.getInputStream(entry), extClassLoader);
-				IFile.closeQuietly(jarFile);
-			} catch (Exception e) {
-				IFile.closeQuietly(jarFile);
-				e.printStackTrace();
-			}
-		}
-		pluginsInitialized = true;
-	}
+                // look for listeners
+                entry = jarFile.getJarEntry("META-INF/listeners.xml");
+                if (entry != null)
+                    SoapUI.getListenerRegistry().addConfig(jarFile.getInputStream(entry), extClassLoader);
+                IFile.closeQuietly(jarFile);
+            } catch (Exception e) {
+                IFile.closeQuietly(jarFile);
+                e.printStackTrace();
+            }
+        }
+        pluginsInitialized = true;
+    }
 
-	private void propagateComponents() throws InitializationException {
-		// Propagate Component COMPONENT_INFO from here
-		final WriteDao<ComponentDto> componentDao = ((WriteDao<ComponentDto>) dataStorageCallback.getDao(ComponentDto.class));
-		try {
-			try {
-				componentDao.delete(this.getInfo().getId());
-			} catch (ObjectWithIdNotFoundException e) {
-				ExcUtils.suppress(e);
-			}
-			componentDao.add(new ComponentDto(this.getInfo()));
-		} catch (StorageException e) {
-			throw new InitializationException(e);
-		}
-	}
+    private void propagateComponents() throws InitializationException {
+        // Propagate Component COMPONENT_INFO from here
+        final WriteDao<ComponentDto> componentDao = ((WriteDao<ComponentDto>) dataStorageCallback.getDao(ComponentDto.class));
+        try {
+            try {
+                componentDao.delete(this.getInfo().getId());
+            } catch (ObjectWithIdNotFoundException e) {
+                ExcUtils.suppress(e);
+            }
+            componentDao.add(new ComponentDto(this.getInfo()));
+        } catch (StorageException e) {
+            throw new InitializationException(e);
+        }
+    }
 
-	@Override
-	public void doRelease() {}
+    @Override
+    public void doRelease() {}
 }
