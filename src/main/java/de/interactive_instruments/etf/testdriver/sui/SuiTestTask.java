@@ -33,6 +33,7 @@ import de.interactive_instruments.etf.testdriver.TestResultCollectorInjector;
 import de.interactive_instruments.exceptions.InitializationException;
 import de.interactive_instruments.exceptions.InvalidStateTransitionException;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
+import de.interactive_instruments.properties.ConfigPropertyHolder;
 
 /**
  * BaseX test run task for executing XQuery on a BaseX database.
@@ -44,6 +45,7 @@ class SuiTestTask extends AbstractTestTask {
     private WsdlProject wsdlProject = null;
     private STestCaseRunner runner = null;
     private IFile tmpProjectFile;
+    private final ConfigPropertyHolder config;
 
     /**
      * Default constructor.
@@ -51,8 +53,9 @@ class SuiTestTask extends AbstractTestTask {
      * @throws IOException
      *             I/O error
      */
-    public SuiTestTask(final TestTaskDto testTaskDto) {
+    public SuiTestTask(final TestTaskDto testTaskDto, final ConfigPropertyHolder config) {
         super(testTaskDto, new SuiTestTaskProgress(), SuiTestTask.class.getClassLoader());
+        this.config = config;
     }
 
     @Override
@@ -117,12 +120,12 @@ class SuiTestTask extends AbstractTestTask {
 
             getLogger().info("Project Properties: ");
             final String[] outProps = runner.getProjectProperties();
-            final String showUserName = testTaskDto.getArguments().value("etf.showusername");
+            final String showUsername = config.getPropertyOrDefault("etf.show.username", "false");
             for (int i = 0; i < runner.getProjectProperties().length; i += 2) {
                 final String key = outProps[i];
                 final String val = outProps[i + 1];
-                if (!"authPwd".equals(key) && !"password".equals(key) && !"etf.showusername".equals(key)) {
-                    if (!("false".equals(showUserName) && ("username".equals(key) || "authUser".equals(key)))) {
+                if (!"authPwd".equals(key) && !"password".equals(key)) {
+                    if (!("false".equals(showUsername) && ("username".equals(key) || "authUser".equals(key)))) {
                         getLogger().info("{} - {} ", key, val);
                     } else {
                         getLogger().info("[Hiding {} property]", key);
