@@ -1,5 +1,6 @@
 /**
- * Copyright 2017-2019 European Union, interactive instruments GmbH
+ * Copyright 2017-2020 European Union, interactive instruments GmbH
+ *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -120,16 +121,15 @@ class SuiTestTask extends AbstractTestTask {
 
             getLogger().info("Project Properties: ");
             final String[] outProps = runner.getProjectProperties();
-            final String showUsername = config.getPropertyOrDefault("etf.show.username", "false");
+            final boolean hideUsernameConfig = config.getPropertyOrDefault(
+                    "etf.show.username", "true").equals("false");
             for (int i = 0; i < runner.getProjectProperties().length; i += 2) {
                 final String key = outProps[i];
                 final String val = outProps[i + 1];
-                if (!"authPwd".equals(key) && !"password".equals(key)) {
-                    if (!("false".equals(showUsername) && ("username".equals(key) || "authUser".equals(key)))) {
-                        getLogger().info("{} - {} ", key, val);
-                    } else {
-                        getLogger().info("[Hiding {} property]", key);
-                    }
+                final boolean isNotPasswordToHide = !"authPwd".equals(key) && !"password".equals(key);
+                final boolean isNotUsernameToHide = !(("username".equals(key) || "authUser".equals(key)) && hideUsernameConfig);
+                if (isNotPasswordToHide && isNotUsernameToHide) {
+                    getLogger().info("{} - {} ", key, val);
                 }
             }
 

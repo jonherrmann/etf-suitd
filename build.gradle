@@ -7,15 +7,18 @@
 buildscript {
     repositories {
         maven {
-            url "https://services.interactive-instruments.de/etfdev-af/plugins-releases-local"
+            url "https://af.etf.interactive-instruments.de/repository/gradle-plugins"
             credentials {
-                // Our repository requires authenticating
                 username 'ii-bda'
                 password 'AP7mb4WA6F1ckdZkaE8Qx8GSowt'
             }}
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
     }
     dependencies {
-        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version: '[1.0.30,1.0.99]'
+        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version: '[2.0.17,2.0.99]'
     }
     dependencies {
         ant.unjar src: configurations.classpath.files.find {it.path.contains('etf')}, dest: 'build/gradle'
@@ -49,8 +52,8 @@ repositories {
 	// mavenLocal()
 }
 
-ext.aeVersion = '2.0.1'
-ext.soapuiVersion = '5.2.1'
+ext.aeVersion = '2.1.0'
+ext.soapuiVersion = '5.5.0'
 
 configurations {
     api
@@ -78,9 +81,9 @@ dependencies {
     // SOAPUI END
 
 
-    api group: 'de.interactive_instruments', name: 'ii-commons-util', version:'3.0.0'+project.snapshotSuffix
-    api group: 'de.interactive_instruments.etf', name: 'etf-core', version: '1.1.0' + project.snapshotSuffix
-    api group: 'de.interactive_instruments.etf', name: 'etf-spi', version: '1.0.1' + project.snapshotSuffix
+    api group: 'de.interactive_instruments', name: 'ii-commons-util', version:'4.0.0'+project.snapshotSuffix
+    api group: 'de.interactive_instruments.etf', name: 'etf-core', version:'2.1.0'+project.snapshotSuffix
+    api group: 'de.interactive_instruments.etf', name: 'etf-spi', version:'2.1.0'+project.snapshotSuffix
     api group: 'org.slf4j', name: 'slf4j-api', version: etf_slf4jApiVersion
 
     compile group: 'de.interactive_instruments.etf.suim', name: 'etf-sui-owsgtl', version:"$aeVersion"+project.snapshotSuffix
@@ -94,7 +97,7 @@ dependencies {
 	compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
 
     integrationTest group: 'ch.qos.logback', name: 'logback-classic', version: etf_logbackVersion
-    integrationTest group: 'junit', name: 'junit', version: etf_junitTestVersion
+    testCompile group: 'org.junit.vintage', name: 'junit-vintage-engine', version: etf_junitTestVersion
     integrationTest group: 'de.interactive_instruments.etf.test', name: 'etf-sui-integration-test-resources', version: '1.0.1'+project.snapshotSuffix
     integrationTest group: 'de.interactive_instruments.etf', name: 'etf-stdtot', version: '1.0.1' + project.snapshotSuffix
     integrationTest group: 'de.interactive_instruments.etf.test', name: 'etf-unittest', version: '1.1.1' + project.snapshotSuffix
@@ -132,6 +135,9 @@ jar.doFirst {
 }
 
 jar {
+
+    archivesBaseName = "etf-suitd-legacy"
+
     into('lib') {
         from allLibs
     }
