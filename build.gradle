@@ -52,7 +52,7 @@ repositories {
 	// mavenLocal()
 }
 
-ext.aeVersion = '2.1.0'
+ext.aeVersion = '2.2.0'
 ext.soapuiVersion = '5.5.0'
 
 configurations {
@@ -81,7 +81,7 @@ dependencies {
     // SOAPUI END
 
 
-    api group: 'de.interactive_instruments', name: 'ii-commons-util', version:'4.0.0'+project.snapshotSuffix
+    api group: 'de.interactive_instruments', name: 'ii-commons-util', version:'4.0.1'+project.snapshotSuffix
     api group: 'de.interactive_instruments.etf', name: 'etf-core', version:'2.1.0'+project.snapshotSuffix
     api group: 'de.interactive_instruments.etf', name: 'etf-spi', version:'2.1.0'+project.snapshotSuffix
     api group: 'org.slf4j', name: 'slf4j-api', version: etf_slf4jApiVersion
