@@ -75,7 +75,7 @@ dependencies {
         exclude group: 'com.jgoodies'
     }
     compile 'joda-time:joda-time:2.9.3'
-
+    compile 'xmlbeans:xbean:fixed-2.4.0'
     compile 'com.fifesoft:rsyntaxtextarea:2.5.3'
 
     // SOAPUI END
