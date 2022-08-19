@@ -1,0 +1,6 @@
+image: jonherrmann/gitpod-workspace-sdk:latest
+
+tasks:
+  - name: "Initalize"
+    init: /home/gitpod/init.sh
+    command: /home/gitpod/cmd.sh
