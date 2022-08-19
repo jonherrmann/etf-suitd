@@ -99,10 +99,11 @@ dependencies {
 	compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
 
     integrationTest group: 'ch.qos.logback', name: 'logback-classic', version: etf_logbackVersion
-    testCompile group: 'org.junit.vintage', name: 'junit-vintage-engine', version: etf_junitTestVersion
+    integrationTest group: 'org.junit.jupiter', name: 'junit-jupiter', version: etf_junitTestVersion
+
     integrationTest group: 'de.interactive_instruments.etf.test', name: 'etf-sui-integration-test-resources', version: '1.0.1'+project.snapshotSuffix
-    integrationTest group: 'de.interactive_instruments.etf', name: 'etf-stdtot', version: '1.0.1' + project.snapshotSuffix
-    integrationTest group: 'de.interactive_instruments.etf.test', name: 'etf-unittest', version: '1.1.1' + project.snapshotSuffix
+    integrationTest group: 'de.interactive_instruments.etf', name: 'etf-stdtot', version: '2.1.0' + project.snapshotSuffix
+    integrationTest group: 'de.interactive_instruments.etf.test', name: 'etf-unittest', version: '2.1.0' + project.snapshotSuffix
 }
 
 configurations {
@@ -188,5 +189,10 @@ test {
     environment "ETF_TD_DEPLOYMENT_DIR", testDataDir
     environment "ETF_TESTING_SUI_TP_DIR", suiTestTpDir.absolutePath
     dependsOn = ["compileTestJava", "extractIntegrationTestProjects", "copyTdToTdDir"]
+
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////////////

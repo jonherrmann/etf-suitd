@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2020 European Union, interactive instruments GmbH
+ * Copyright 2017-2022 European Union, interactive instruments GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -29,12 +29,15 @@ import java.net.URISyntaxException;
 import java.util.Date;
 
 import org.junit.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import de.interactive_instruments.IFile;
 import de.interactive_instruments.SUtils;
 import de.interactive_instruments.etf.EtfConstants;
 import de.interactive_instruments.etf.component.ComponentNotLoadedException;
+import de.interactive_instruments.etf.component.loaders.*;
 import de.interactive_instruments.etf.dal.dao.DataStorage;
 import de.interactive_instruments.etf.dal.dao.DataStorageRegistry;
 import de.interactive_instruments.etf.dal.dao.WriteDao;
@@ -55,11 +58,7 @@ import de.interactive_instruments.exceptions.*;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 import de.interactive_instruments.properties.PropertyUtils;
 
-/**
- *
- *
- * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
- */
+@TestMethodOrder(value = MethodOrderer.Alphanumeric.class)
 public class SuiTestRunTaskFactoryTest {
 
     // DO NOT RUN THE TESTS IN THE IDE BUT WITH GRADLE
@@ -69,7 +68,7 @@ public class SuiTestRunTaskFactoryTest {
     private static DataStorage DATA_STORAGE = DataStorageTestUtils.inMemoryStorage();
 
     private TestRunDto createTestRunDtoForProject(final String url)
-            throws ComponentNotLoadedException, ConfigurationException, URISyntaxException,
+            throws URISyntaxException,
             ObjectWithIdNotFoundException, IOException {
 
         final TestObjectDto testObjectDto = new TestObjectDto();
@@ -111,7 +110,23 @@ public class SuiTestRunTaskFactoryTest {
         return testRunDto;
     }
 
-    @BeforeClass
+    private static class TestLoadingContext implements LoadingContext {
+
+        private final ItemRegistry itemRegistry = new DefaultItemRegistry();
+        private final ItemFileObserverRegistry itemFileObserverRegistry = new DefaultItemFileObserverRegistry();
+
+        @Override
+        public ItemRegistry getItemRegistry() {
+            return itemRegistry;
+        }
+
+        @Override
+        public ItemFileObserverRegistry getItemFileObserverRegistry() {
+            return itemFileObserverRegistry;
+        }
+    }
+
+    @BeforeAll
     public static void setUp()
             throws IOException, ConfigurationException, InvalidStateTransitionException,
             InitializationException, ObjectWithIdNotFoundException {
@@ -136,6 +151,8 @@ public class SuiTestRunTaskFactoryTest {
                     "ETF_TESTING_SUI_TP_DIR", "./build/tmp/testProjects"));
             testProjectDir.mkdirs();
             testProjectDir.expectDirIsReadable();
+            Assertions.assertNotNull(testProjectDir.getFilesInDirRecursive());
+            Assertions.assertFalse(testProjectDir.getFilesInDirRecursive().isEmpty());
 
             // Load driver
             testDriverManager = new DefaultTestDriverManager();
@@ -153,6 +170,7 @@ public class SuiTestRunTaskFactoryTest {
                     EtfConstants.ETF_DATA_STORAGE_NAME,
                     DATA_STORAGE.getClass().getName());
 
+            testDriverManager.setLoadingContext(new TestLoadingContext());
             testDriverManager.init();
             testDriverManager.load(EidFactory.getDefault().createAndPreserveStr("4838e01b-4186-4d2d-a93a-414b9e9a49a7"));
         }
@@ -164,7 +182,7 @@ public class SuiTestRunTaskFactoryTest {
         // DO NOT RUN THE TESTS IN THE IDE BUT DIRECTLY WITH GRADLE
 
         // http://www.opengeospatial.org/resource/products/compliant
-        final String testUrl = "https://services.interactive-instruments.de/cite-xs-46/simpledemo/cgi-bin/cities-postgresql/wfs?request=GetCapabilities&service=wfs";
+        final String testUrl = "https://services.interactive-instruments.de/ogc-reference-2/simple/wfs?request=GetCapabilities&service=wfs";
 
         final TestRunDto testRunDto = createTestRunDtoForProject(testUrl);
 
@@ -175,26 +193,28 @@ public class SuiTestRunTaskFactoryTest {
 
         final TestRunDto runResult = taskPoolRegistry.getTaskById(testRunDto.getId()).waitForResult();
 
-        assertNotNull(runResult);
-        assertNotNull(runResult.getTestTaskResults());
-        assertFalse(runResult.getTestTaskResults().isEmpty());
+        Assertions.assertNotNull(runResult);
+        Assertions.assertNotNull(runResult.getTestTaskResults());
+        Assertions.assertFalse(runResult.getTestTaskResults().isEmpty());
 
         final TestTaskResultDto result = runResult.getTestTaskResults().get(0);
-        assertNotNull(result);
-        assertNotNull(result.getTestModuleResults());
-        assertNotNull(result.getTestModuleResults().get(0).getResultedFrom());
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getTestModuleResults());
+        Assertions.assertNotNull(result.getTestModuleResults().get(0).getResultedFrom());
 
         // Check correct order
-        assertEquals("Initialization and basic checks", result.getTestModuleResults().get(0).getResultedFrom().getLabel());
-        assertEquals("A - TS 2", result.getTestModuleResults().get(1).getResultedFrom().getLabel());
-        assertEquals("Z - TS 3", result.getTestModuleResults().get(2).getResultedFrom().getLabel());
-        assertEquals("B - TS 4", result.getTestModuleResults().get(3).getResultedFrom().getLabel());
+        Assertions.assertEquals("Initialization and basic checks",
+                result.getTestModuleResults().get(0).getResultedFrom().getLabel());
+        Assertions.assertEquals("A - TS 2", result.getTestModuleResults().get(1).getResultedFrom().getLabel());
+        Assertions.assertEquals("Z - TS 3", result.getTestModuleResults().get(2).getResultedFrom().getLabel());
+        Assertions.assertEquals("B - TS 4", result.getTestModuleResults().get(3).getResultedFrom().getLabel());
 
         // Check order of generated TestCases
-        assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(0));
-        assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(0).getTestStepResults().get(0));
-        assertEquals("Groovy Script", result.getTestModuleResults().get(3).getTestCaseResults().get(0).getTestStepResults()
-                .get(0).getResultedFrom().getLabel());
+        Assertions.assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(0));
+        Assertions.assertNotNull(result.getTestModuleResults().get(3).getTestCaseResults().get(0).getTestStepResults().get(0));
+        Assertions.assertEquals("Groovy Script",
+                result.getTestModuleResults().get(3).getTestCaseResults().get(0).getTestStepResults()
+                        .get(0).getResultedFrom().getLabel());
     }
 
 }
