@@ -20,18 +20,6 @@
  */
 package de.interactive_instruments.etf.testdriver.sui;
 
-import static de.interactive_instruments.etf.testdriver.sui.SuiTestDriver.SUI_TEST_DRIVER_EID;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Date;
-
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
-
 import de.interactive_instruments.IFile;
 import de.interactive_instruments.SUtils;
 import de.interactive_instruments.etf.EtfConstants;
@@ -53,9 +41,21 @@ import de.interactive_instruments.etf.testdriver.DefaultTestDriverManager;
 import de.interactive_instruments.etf.testdriver.TaskPoolRegistry;
 import de.interactive_instruments.etf.testdriver.TestDriverManager;
 import de.interactive_instruments.etf.testdriver.TestRun;
-import de.interactive_instruments.exceptions.*;
+import de.interactive_instruments.exceptions.ExcUtils;
+import de.interactive_instruments.exceptions.InitializationException;
+import de.interactive_instruments.exceptions.InvalidStateTransitionException;
+import de.interactive_instruments.exceptions.ObjectWithIdNotFoundException;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 import de.interactive_instruments.properties.PropertyUtils;
+import org.junit.jupiter.api.*;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Date;
+
+import static de.interactive_instruments.etf.testdriver.sui.SuiTestDriver.SUI_TEST_DRIVER_EID;
 
 @TestMethodOrder(value = MethodOrderer.Alphanumeric.class)
 public class SuiTestRunTaskFactoryTest {
